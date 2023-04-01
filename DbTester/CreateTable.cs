@@ -28,17 +28,25 @@ namespace DbTester
             sb.AppendLine("CREATE TABLE T_TEST_TABLE (");
 
             JObject sample = (JObject)_objects.First();
-            foreach (KeyValuePair<string, JToken> prop in sample)
+            List<JProperty> props = sample.Properties().ToList();
+            for (int i = 0; i < sample.Count; i++)
             {
-                string name = prop.Key;
+                JProperty prop = props[i]; 
+                string name = prop.Name;
                 string sqlType = TokenToSqlType(prop.Value);
 
-                sb.AppendLine($"{name} {sqlType},");
+                sb.Append($"    {name} {sqlType}");
+                if (i != sample.Count - 1)
+                {
+                    sb.AppendLine(",");
+                }
+                else 
+                {
+                    sb.Append("\n");
+                }
             }
-            sb.Length -= 1;
 
             sb.AppendLine(");");
-
             _query = sb.ToString();
 
             return _query;
