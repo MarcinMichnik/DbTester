@@ -42,7 +42,7 @@ namespace DbTester
                 }
                 else 
                 {
-                    sb.Append("\n");
+                    sb.Append('\n');
                 }
             }
 
