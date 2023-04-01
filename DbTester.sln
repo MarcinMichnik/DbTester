@@ -5,6 +5,8 @@ VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbTester", "DbTester\DbTester.csproj", "{69B9BD67-FCBA-4DD6-AD23-DDA75B593ED9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbTesterTest", "DbTesterTest\DbTesterTest.csproj", "{2034C700-F7DE-45FD-A7A8-63BB8D1379D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{69B9BD67-FCBA-4DD6-AD23-DDA75B593ED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69B9BD67-FCBA-4DD6-AD23-DDA75B593ED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69B9BD67-FCBA-4DD6-AD23-DDA75B593ED9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2034C700-F7DE-45FD-A7A8-63BB8D1379D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2034C700-F7DE-45FD-A7A8-63BB8D1379D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2034C700-F7DE-45FD-A7A8-63BB8D1379D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2034C700-F7DE-45FD-A7A8-63BB8D1379D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
