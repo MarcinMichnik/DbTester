@@ -5,6 +5,17 @@ namespace QueryBuilder
 {
     internal class QueryBuilderTools
     {
+        public static string TokenToSqlType(JToken value)
+        {
+            Dictionary<JTokenType, string> map = new()
+            {
+                { JTokenType.String, "VARCHAR(64)" },
+                { JTokenType.Integer, "INT" },
+                { JTokenType.Float, "FLOAT(53)" },
+                { JTokenType.Date, "DATETIME" }
+            };
+            return map[value.Type];
+        }
         public static string ConvertJTokenToString(JToken token, TimeZoneInfo timeZone)
         {
             switch (token.Type)
