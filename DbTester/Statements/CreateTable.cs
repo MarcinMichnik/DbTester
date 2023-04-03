@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DbTester
+namespace DbTester.Statements
 {
     class CreateTable
     {
@@ -31,7 +31,7 @@ namespace DbTester
             List<JProperty> props = sample.Properties().ToList();
             for (int i = 0; i < sample.Count; i++)
             {
-                JProperty prop = props[i]; 
+                JProperty prop = props[i];
                 string name = prop.Name;
                 string sqlType = TokenToSqlType(prop.Value);
 
@@ -40,7 +40,7 @@ namespace DbTester
                 {
                     sb.AppendLine(",");
                 }
-                else 
+                else
                 {
                     sb.Append('\n');
                 }
