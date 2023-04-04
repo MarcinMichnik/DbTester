@@ -6,6 +6,6 @@ namespace QueryBuilder
     {
         protected string? tableName;
         protected string ModifiedBy { get; set; } = "XYZ";
-        protected SqlFunction CurrentTimestampCall { get; set; } = new("CURRENT_TIMESTAMP()");
+        protected SqlFunction CurrentTimestampCall { get; set; } = new("CURRENT_TIMESTAMP");
     }
 }

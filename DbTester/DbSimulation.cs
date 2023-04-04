@@ -39,15 +39,21 @@ namespace DbTester
                 createTableCommand.ExecuteNonQuery();
             }
             
-            Insert insertQuery = new(_tableName);
-            insertQuery.AddColumn("Id", 1);
-            insertQuery.AddColumn("Name", "John");
-            insertQuery.AddColumn("Salary", 2100);
-            insertQuery.AddColumn("DateOfBirth", new SqlFunction("CURRENT_TIMESTAMP"));
-            SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), connection);
-            insertCommand.ExecuteNonQuery();
+            foreach (JObject obj in input.Children<JObject>())
+            {
+                Insert insertQuery = new(_tableName);
+                foreach (JProperty prop in obj.Properties())
+                {
+                    string propName = prop.Name;
+                    JToken val = prop.Value;
+                    insertQuery.AddColumn(propName, val);
+                }
+                SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), connection);
+                insertCommand.ExecuteNonQuery();
+            }    
 
-            SqlCommand selectCommand = new($"SELECT * FROM {_tableName}", connection);
+            Select selectQuery = new(_tableName, true);
+            SqlCommand selectCommand = new(selectQuery.ToString(), connection);
             SqlDataReader reader = selectCommand.ExecuteReader();
 
             while (reader.Read())

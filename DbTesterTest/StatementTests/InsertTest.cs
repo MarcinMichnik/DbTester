@@ -48,7 +48,7 @@ namespace QueryBuilderTest.StatementTests
                                     1,
                                     'HANNAH',
                                     12.1,
-                                    TO_DATE('2022-01-01""T""00:00:00', 'YYYY-MM-DD""T""HH24:MI:SS'),
+                                    '2022-01-01T00:00:00',
                                     {CurrentTimestampCall.Literal},
                                     '{ModifiedBy}'
                                 );";

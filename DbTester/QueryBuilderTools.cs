@@ -59,8 +59,8 @@ namespace QueryBuilder
             TimeSpan offset = timeZone.GetUtcOffset(datetimeValue);
             DateTimeOffset dto = new(datetimeValue, offset);
 
-            string dateTimeStr = dto.ToString("yyyy-MM-dd\\\"T\\\"HH:mm:ss");
-            return $"TO_DATE('{dateTimeStr}', 'YYYY-MM-DD\"T\"HH24:MI:SS')";
+            string dateTimeStr = dto.ToString("yyyy-MM-dd\"T\"HH:mm:ss");
+            return $"'{dateTimeStr}'";
         }
     }
 }

@@ -5,7 +5,7 @@ namespace QueryBuilderTest
 {
     public abstract class AbstractTest
     {
-        protected SqlFunction CurrentTimestampCall { get; set; } = new("CURRENT_TIMESTAMP()");
+        protected SqlFunction CurrentTimestampCall { get; set; } = new("CURRENT_TIMESTAMP");
         protected string ModifiedBy { get; set; } = "XYZ";
         protected string TableName { get; set; } = "\"APP\".\"EXAMPLE_TABLE_NAME\"";
         protected TimeZoneInfo TimeZone { get; set; }
