@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace QueryBuilder.Statements
+﻿namespace QueryBuilder.Statements
 {
     public interface IStatement
     {

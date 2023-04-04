@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using QueryBuilder.DataTypes;
+﻿using QueryBuilder.DataTypes;
 
 namespace QueryBuilder
 {

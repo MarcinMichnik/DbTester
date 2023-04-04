@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using QueryBuilder;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DbTester.Statements
 {

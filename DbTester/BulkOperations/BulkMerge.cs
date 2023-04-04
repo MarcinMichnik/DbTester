@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Text;
+﻿using System.Text;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
 
