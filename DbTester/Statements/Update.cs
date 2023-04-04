@@ -17,7 +17,8 @@ namespace QueryBuilder.Statements
             if (WhereClauses is null || WhereClauses.Count == 0)
             {
                 string errorMessage = 
-                    "Cannot serialize update object to string because WhereClauses property is null or contains zero elements!";
+                    @"Cannot serialize update object to string 
+                      because WhereClauses property is null or contains zero elements!";
                 throw new Exception(errorMessage);
             }
 
@@ -36,8 +37,6 @@ namespace QueryBuilder.Statements
 
             StringBuilder columns = new();
 
-            // It's ok to have a null exception.
-            // This is already handled in constructor
             foreach (KeyValuePair<string, JToken> column in Columns)
             {
                 string convertedValue = QueryBuilderTools.ConvertJTokenToString(column.Value, timeZone);

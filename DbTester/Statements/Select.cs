@@ -18,6 +18,18 @@ namespace DbTester.Statements
             Columns = new();
         }
 
+        public void AddColumn(string columnName)
+        {
+            if (Columns is null)
+            {
+                throw new Exception(
+                    "Cannot serialize update columns because Columns property is null!");
+            }
+                
+            // value does not matter
+            Columns.Add(columnName, 0);
+        }
+
         public override string ToString()
         {
             return ToString(TimeZoneInfo.Local);
@@ -39,7 +51,8 @@ namespace DbTester.Statements
             if (_selectAll)
                 return "*";
             if (Columns is null)
-                throw new Exception("Cannot serialize update columns because Columns property is null!");
+                throw new Exception(
+                    "Cannot serialize update columns because Columns property is null!");
 
             StringBuilder columns = new();
 
