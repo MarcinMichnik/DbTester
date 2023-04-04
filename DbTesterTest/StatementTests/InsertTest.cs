@@ -1,4 +1,3 @@
-using QueryBuilder.DataTypes;
 using QueryBuilder.Statements;
 
 namespace QueryBuilderTest.StatementTests
