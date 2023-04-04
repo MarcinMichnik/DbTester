@@ -11,18 +11,20 @@ namespace DbTester.Statements
     public class CreateTable
     {
         private string? _tableName;
+        private JArray _objects;
 
-        public CreateTable(string tableName)
+        public CreateTable(string tableName, JArray objects)
         {
             _tableName = tableName;
+            _objects = objects;
         }
 
-        public string FromJArray(JArray objects)
+        public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"CREATE TABLE {_tableName} (");
 
-            JObject sample = (JObject)objects.First();
+            JObject sample = (JObject)_objects.First();
             List<JProperty> props = sample.Properties().ToList();
             for (int i = 0; i < sample.Count; i++)
             {

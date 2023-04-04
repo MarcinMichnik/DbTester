@@ -64,8 +64,8 @@ namespace DbTesterTest.StatementTests
                     { "MODIFIED_BY", "source" }
                 }
             };
-            var ct = new CreateTable(tableName);
-            return ct.FromJArray(arr);
+            var ct = new CreateTable(tableName, arr);
+            return ct.ToString();
         }
     }
 }

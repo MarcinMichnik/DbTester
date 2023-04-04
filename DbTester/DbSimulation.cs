@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
 
@@ -12,30 +7,32 @@ namespace DbTester
 {
     public class DbSimulation
     {
-        public string FilePath { get; set; }
-        public DbSimulation(string filePath) 
+        private string _filePath;
+        private string _dbConnectionString;
+        private readonly string _tableName = "T_TEST_TABLE";
+        public DbSimulation(string filePath, string dbConnectionString)
         {
-            FilePath = filePath;
+            _filePath = filePath;
+            _dbConnectionString = dbConnectionString;
         }
         public void Run()
         {
-            string fullPath = Path.GetFullPath(FilePath);
+            string fullPath = Path.GetFullPath(_filePath);
             string jsonString = File.ReadAllText(fullPath);
             JArray input = JArray.Parse(jsonString);
-            string tableName = "T_TEST_TABLE";
-            CreateTable ct = new CreateTable(tableName);
-            string query = ct.FromJArray(input);
+            CreateTable ct = new CreateTable(_tableName, input);
+            string createTableQuery = ct.ToString();
 
-            SqlConnection connection = new SqlConnection(
-                "Data Source=localhost;Initial Catalog=master;Integrated Security=True");
+            SqlConnection connection = new SqlConnection(_dbConnectionString);
             connection.Open();
-            SqlCommand command = new SqlCommand(query, connection);
+            SqlCommand command = new SqlCommand(createTableQuery, connection);
             command.ExecuteNonQuery();
 
-            SqlCommand command3 = new SqlCommand($"INSERT INTO {tableName} VALUES (1, 'John', 2100, CURRENT_TIMESTAMP)", connection);
+            SqlCommand command3 = new SqlCommand(
+                $"INSERT INTO {_tableName} VALUES (1, 'John', 2100, CURRENT_TIMESTAMP)", connection);
             command3.ExecuteNonQuery();
 
-            SqlCommand command2 = new SqlCommand($"SELECT * FROM {tableName}", connection);
+            SqlCommand command2 = new SqlCommand($"SELECT * FROM {_tableName}", connection);
             SqlDataReader reader = command2.ExecuteReader();
 
             while (reader.Read())
@@ -44,7 +41,8 @@ namespace DbTester
             }
             reader.Close();
 
-            SqlCommand command4 = new SqlCommand($"DROP TABLE {tableName}", connection);
+            DropTable dropTableQuery = new(_tableName);
+            SqlCommand command4 = new(dropTableQuery.ToString(), connection);
             command4.ExecuteNonQuery();
 
             connection.Close();

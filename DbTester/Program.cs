@@ -1,9 +1,6 @@
 ﻿using DbTester;
-using DbTester.Statements;
-using Newtonsoft.Json.Linq;
-using System.Data;
-using System.Data.SqlClient;
 
 string jsonFilePath = @"..\..\..\Entries.json";
-var sim = new DbSimulation(jsonFilePath);
+string connectionString = "Data Source=localhost;Initial Catalog=master;Integrated Security=True";
+DbSimulation sim = new(jsonFilePath, connectionString);
 sim.Run();
