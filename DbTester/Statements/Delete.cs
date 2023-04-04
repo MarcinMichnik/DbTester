@@ -13,7 +13,7 @@
             string whereClauseLiterals = SerializeWhereClauses(timeZone);
 
             return @$"DELETE FROM {tableName} 
-                      {whereClauseLiterals};";
+                      WHERE {whereClauseLiterals};";
         }
     }
 }

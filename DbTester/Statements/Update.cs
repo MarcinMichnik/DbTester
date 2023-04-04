@@ -26,7 +26,7 @@ namespace QueryBuilder.Statements
 
             return @$"UPDATE {tableName} SET
                           {columns} 
-                      {primaryKeyLookups};";
+                      WHERE {primaryKeyLookups};";
         }
 
         private string SerializeColumns(TimeZoneInfo timeZone)

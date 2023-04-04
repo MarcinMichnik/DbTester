@@ -49,7 +49,6 @@ namespace QueryBuilder.Statements
                 return string.Empty;
 
             StringBuilder whereClauseLiterals = new();
-            whereClauseLiterals.Append("WHERE ");
 
             AppendWhereClauseLiterals(timeZone, whereClauseLiterals);
 

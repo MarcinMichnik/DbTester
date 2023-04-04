@@ -2,6 +2,8 @@
 using System.Data;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
+using QueryBuilder.Statements;
+using QueryBuilder.DataTypes;
 
 namespace DbTester
 {
@@ -15,25 +17,38 @@ namespace DbTester
             _filePath = filePath;
             _dbConnectionString = dbConnectionString;
         }
-        public void Run()
+        public string Run()
         {
             string fullPath = Path.GetFullPath(_filePath);
             string jsonString = File.ReadAllText(fullPath);
             JArray input = JArray.Parse(jsonString);
-            CreateTable ct = new CreateTable(_tableName, input);
+            CreateTable ct = new(_tableName, input);
             string createTableQuery = ct.ToString();
 
-            SqlConnection connection = new SqlConnection(_dbConnectionString);
+            SqlConnection connection = new(_dbConnectionString);
             connection.Open();
-            SqlCommand command = new SqlCommand(createTableQuery, connection);
-            command.ExecuteNonQuery();
+            SqlCommand createTableCommand = new(createTableQuery, connection);
+            try 
+            {
+                createTableCommand.ExecuteNonQuery();
+            } catch (Exception ex) 
+            {
+                DropTable dropTableQueryExc = new(_tableName);
+                SqlCommand dropTableCommandExc = new(dropTableQueryExc.ToString(), connection);
+                dropTableCommandExc.ExecuteNonQuery();
+                createTableCommand.ExecuteNonQuery();
+            }
+            
+            Insert insertQuery = new(_tableName);
+            insertQuery.AddColumn("Id", 1);
+            insertQuery.AddColumn("Name", "John");
+            insertQuery.AddColumn("Salary", 2100);
+            insertQuery.AddColumn("DateOfBirth", new SqlFunction("CURRENT_TIMESTAMP"));
+            SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), connection);
+            insertCommand.ExecuteNonQuery();
 
-            SqlCommand command3 = new SqlCommand(
-                $"INSERT INTO {_tableName} VALUES (1, 'John', 2100, CURRENT_TIMESTAMP)", connection);
-            command3.ExecuteNonQuery();
-
-            SqlCommand command2 = new SqlCommand($"SELECT * FROM {_tableName}", connection);
-            SqlDataReader reader = command2.ExecuteReader();
+            SqlCommand selectCommand = new($"SELECT * FROM {_tableName}", connection);
+            SqlDataReader reader = selectCommand.ExecuteReader();
 
             while (reader.Read())
             {
@@ -42,10 +57,11 @@ namespace DbTester
             reader.Close();
 
             DropTable dropTableQuery = new(_tableName);
-            SqlCommand command4 = new(dropTableQuery.ToString(), connection);
-            command4.ExecuteNonQuery();
+            SqlCommand dropTableCommand = new(dropTableQuery.ToString(), connection);
+            dropTableCommand.ExecuteNonQuery();
 
             connection.Close();
+            return new JArray().ToString();
         }
 
         private void ReadSingleRow(IDataRecord dataRecord)
@@ -58,6 +74,7 @@ namespace DbTester
                     Console.Write(", ");
                 }
             }
+            Console.Write('\n');
         }
     }
 }
