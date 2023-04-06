@@ -3,8 +3,6 @@ using System.Data;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
-using QueryBuilder.DataTypes;
-using System.Security.Cryptography.X509Certificates;
 
 namespace DbTester
 {
