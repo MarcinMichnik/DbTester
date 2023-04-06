@@ -35,6 +35,18 @@ namespace DbTester
 
             CreateOrReplaceTable(sourceArray, connection);
 
+            InsertEach(sourceArray, connection);
+
+            SelectAndRead(connection);
+
+            DropTable(connection);
+
+            connection.Close();
+            return result.ToString();
+        }
+
+        private void InsertEach(JArray sourceArray, SqlConnection connection)
+        {
             foreach (JObject obj in sourceArray.Children<JObject>())
             {
                 Insert insertQuery = new(_tableName);
@@ -47,7 +59,10 @@ namespace DbTester
                 SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), connection);
                 insertCommand.ExecuteNonQuery();
             }
+        }
 
+        private void SelectAndRead(SqlConnection connection)
+        {
             Select selectQuery = new(_tableName, true);
             SqlCommand selectCommand = new(selectQuery.ToString(), connection);
             SqlDataReader reader = selectCommand.ExecuteReader();
@@ -57,13 +72,13 @@ namespace DbTester
                 ReadSingleRow(reader);
             }
             reader.Close();
+        }
 
+        private void DropTable(SqlConnection connection)
+        {
             DropTable dropTableQuery = new(_tableName);
             SqlCommand dropTableCommand = new(dropTableQuery.ToString(), connection);
             dropTableCommand.ExecuteNonQuery();
-
-            connection.Close();
-            return result.ToString();
         }
 
         private void CreateOrReplaceTable(JArray sourceArray, SqlConnection connection)
