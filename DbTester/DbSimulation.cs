@@ -49,12 +49,13 @@ namespace DbTester
             TestInsertAll(result, sourceArray);
             TestSelectAll(result);
             TestSelectSingle(result, sourceArray);
+            TestUpdateSingle(result, sourceArray);
             SumUpTotalJobDuration(result);
         }
 
         private void TestInsertAll(JObject result, JArray sourceArray)
         {
-            TestOperation(result, "Create", "INSERT_ALL", () =>
+            TryExecuteOperation(result, "Create", "INSERT_ALL", () =>
             {
                 InsertEach(sourceArray);
             });
@@ -62,7 +63,7 @@ namespace DbTester
 
         private void TestSelectAll(JObject result)
         {
-            TestOperation(result, "Read", "SELECT_ALL", () =>
+            TryExecuteOperation(result, "Read", "SELECT_ALL", () =>
             {
                 SelectAndReadAll();
             });
@@ -70,14 +71,24 @@ namespace DbTester
 
         private void TestSelectSingle(JObject result, JArray sourceArray)
         {
-            TestOperation(result, "Read", "SELECT_SINGLE", () =>
+            TryExecuteOperation(result, "Read", "SELECT_SINGLE", () =>
             {
                 SelectAndReadSingle(sourceArray);
             });
         }
 
-        private void TestOperation(JObject result, string operationType, string statement, Action action)
+        private void TestUpdateSingle(JObject result, JArray sourceArray)
         {
+            TryExecuteOperation(result, "Update", "UPDATE_SINGLE", () =>
+            {
+                UpdateSingle(sourceArray);
+            });
+        }
+
+        private void TryExecuteOperation(JObject result, string operationType, string statement, Action action)
+        {
+            result["TestCount"] = (int)result["TestCount"] + 1;
+            result["SuccessfulTests"] = (int)result["SuccessfulTests"] + 1;
             DateTime before = DateTime.Now;
             try
             {
@@ -87,9 +98,7 @@ namespace DbTester
             {
                 AddError(result, e.Message, operationType, statement);
             }
-
             result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).Milliseconds;
-            result["TestCount"] = (int)result["TestCount"] + 1;
         }
 
         private void AddError(JObject result, string message, string operationType, string statement)
@@ -97,6 +106,8 @@ namespace DbTester
             JArray errors = (JArray)result[operationType][statement]["Errors"];
             errors.Add(message);
             result["Status"] = "Error";
+            result["SuccessfulTests"] = (int)result["SuccessfulTests"] - 1;
+            result["FailedTests"] = (int)result["FailedTests"] + 1;
         }
 
         private static void SumUpTotalJobDuration(JObject result)
@@ -156,6 +167,23 @@ namespace DbTester
                 ReadSingleRow(reader);
             }
             reader.Close();
+        }
+
+        private void UpdateSingle(JArray sourceArray)
+        {
+            Update updateQuery = new(_tableName);
+            JProperty idProp = (JProperty)sourceArray.First().First();
+            JObject firstObject = (JObject)sourceArray.First();
+            foreach (JProperty? prop in firstObject.Properties())
+            {
+                if (prop is null)
+                    continue;
+                updateQuery.AddColumn(prop.Name, prop.Value);
+            }
+            updateQuery.Where(idProp.Name, "=", idProp.Value);
+
+            SqlCommand updateCommand = new(updateQuery.ToString(TimeZoneInfo.Local), _connection);
+            updateCommand.ExecuteNonQuery();
         }
 
         private void DropTable()
