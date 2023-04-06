@@ -24,9 +24,10 @@ namespace DbTester
         }
         public string Run()
         {
-            JArray result = new();
+            JObject result = GetResultTemplate();
 
             JArray sourceArray = ArrayFromSourceFile();
+            result["ObjectCount"] = sourceArray.Count;
 
             SqlConnection connection = new(_dbConnectionString);
             connection.Open();
@@ -42,6 +43,46 @@ namespace DbTester
             connection.Close();
 
             return result.ToString();
+        }
+
+        private JObject GetResultTemplate()
+        {
+            JObject result = new();
+            result["Status"] = "Success";
+            result["TestCount"] = 0;
+            result["SuccessfulTests"] = 0;
+            result["FailedTests"] = 0;
+            result["ObjectCount"] = 0;
+            result["JobDuration"] = 0;
+            result["Create"] = new JObject()
+            {
+                { "INSERT", new JObject() },
+                { "INSERT_VIA_MERGE", new JObject() }
+            };
+            result["Read"] = new JObject()
+            {
+                { "SELECT_SINGLE", new JObject() },
+                { "SELECT_ALL", new JObject() }
+            };
+            result["Update"] = new JObject()
+            {
+                { "UPDATE_SINGLE", new JObject() },
+                { "UPDATE_ALL", new JObject() },
+                { "UPDATE_VIA_MERGE", new JObject() }
+            };
+            result["Delete"] = new JObject()
+            {
+                { "DELETE_SINGLE", new JObject() },
+                { "DELETE_ALL", new JObject() },
+                { "TRUNCATE", new JObject() }
+            };
+            result["Merge"] = new JObject()
+            {
+                { "MERGE", new JObject() },
+                { "CONDITIONAL_MERGE", new JObject() }
+            };
+
+            return result;
         }
 
         private JArray ArrayFromSourceFile()
