@@ -19,7 +19,8 @@ namespace DbTester
             _dbConnectionString = dbConnectionString;
 
             Guid guid = Guid.NewGuid();
-            _tableName = $"T_TEST_TABLE_{guid}";
+            string guidString = guid.ToString().Replace("-", "_");
+            _tableName = $"T_TEST_TABLE_{guidString}";
         }
         public string Run()
         {
