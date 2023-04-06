@@ -60,11 +60,10 @@ namespace DbTester
                 = (DateTime.Now - before).Milliseconds;
             result["TestCount"] = (int)result["TestCount"] + 1;
 
-            result["JobDuration"] = sourceArray
-                .SelectMany(obj => obj.Children())
-                .OfType<JProperty>()
-                .Where(prop => prop.Name == "ExecutionTime")
-                .Sum(prop => (int)prop.Value);
+            IEnumerable<JToken> all = result.DescendantsAndSelf();
+            IEnumerable<JProperty> allProps = all.OfType<JProperty>();
+            IEnumerable<JProperty> allTimes = allProps.Where(prop => prop.Name == "ExecutionTime");
+            result["JobDuration"] = allTimes.Sum(prop => (int)prop.Value);
         }
 
         private JArray ArrayFromSourceFile()
