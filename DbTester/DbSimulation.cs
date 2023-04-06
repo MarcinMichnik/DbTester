@@ -25,10 +25,8 @@ namespace DbTester
         public string Run()
         {
             JArray result = new();
-            string sourceFileFullPath = Path.GetFullPath(_filePath);
-            string sourceJsonString = File.ReadAllText(sourceFileFullPath);
-            // Parse validates whether source data is jarray format
-            JArray sourceArray = JArray.Parse(sourceJsonString);
+
+            JArray sourceArray = ArrayFromSourceFile();
 
             SqlConnection connection = new(_dbConnectionString);
             connection.Open();
@@ -42,7 +40,17 @@ namespace DbTester
             DropTable(connection);
 
             connection.Close();
+
             return result.ToString();
+        }
+
+        private JArray ArrayFromSourceFile()
+        {
+            string sourceFileFullPath = Path.GetFullPath(_filePath);
+            string sourceJsonString = File.ReadAllText(sourceFileFullPath);
+            // Parse validates whether source data is jarray format
+            JArray sourceArray = JArray.Parse(sourceJsonString);
+            return sourceArray;
         }
 
         private void InsertEach(JArray sourceArray, SqlConnection connection)
@@ -89,7 +97,7 @@ namespace DbTester
             {
                 createTableCommand.ExecuteNonQuery();
             }
-            catch (Exception ex)
+            catch
             {
                 DropTable dropTableQuery = new(_tableName);
                 SqlCommand dropTableCommand = new(dropTableQuery.ToString(), connection);
