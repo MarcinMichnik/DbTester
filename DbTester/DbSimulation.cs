@@ -97,6 +97,7 @@ namespace DbTester
         {
             JArray errors = (JArray)result[operationType][statement]["Errors"];
             errors.Add(message);
+            result["Status"] = "Error";
         }
 
         private static void SumUpTotalJobDuration(JObject result)
