@@ -3,6 +3,8 @@ using System.Data;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
+using System.Linq;
+using System.Text.Json.Nodes;
 
 namespace DbTester
 {
@@ -44,58 +46,25 @@ namespace DbTester
 
         private void PerformTests(JObject result, JArray sourceArray, SqlConnection connection)
         {
+            DateTime before;
+
+            before = new();
             InsertEach(sourceArray, connection);
+            result["Create"]["INSERT_ALL"]["ExecutionTime"] 
+                = (DateTime.Now - before).Milliseconds;
             result["TestCount"] = (int)result["TestCount"] + 1;
 
+            before = new();
             SelectAndRead(connection);
+            result["Read"]["SELECT_ALL"]["ExecutionTime"]
+                = (DateTime.Now - before).Milliseconds;
             result["TestCount"] = (int)result["TestCount"] + 1;
-        }
 
-        private JObject GetResultTemplate()
-        {
-            JObject result = new();
-            result["Status"] = "Success";
-            result["TestCount"] = 0;
-            result["SuccessfulTests"] = 0;
-            result["FailedTests"] = 0;
-            result["ObjectCount"] = 0;
-            result["JobDuration"] = 0;
-            result["Create"] = new JObject()
-            {
-                { "INSERT", GetSubObject() },
-                { "INSERT_VIA_MERGE", GetSubObject() }
-            };
-            result["Read"] = new JObject()
-            {
-                { "SELECT_SINGLE", GetSubObject() },
-                { "SELECT_ALL", GetSubObject() }
-            };
-            result["Update"] = new JObject()
-            {
-                { "UPDATE_SINGLE", GetSubObject() },
-                { "UPDATE_ALL", GetSubObject() },
-                { "UPDATE_VIA_MERGE", GetSubObject() }
-            };
-            result["Delete"] = new JObject()
-            {
-                { "DELETE_SINGLE", GetSubObject() },
-                { "DELETE_ALL", GetSubObject() },
-                { "TRUNCATE", GetSubObject() }
-            };
-            result["Merge"] = new JObject()
-            {
-                { "MERGE", GetSubObject() },
-                { "CONDITIONAL_MERGE", GetSubObject() }
-            };
-
-            return result;
-        }
-
-        private JObject GetSubObject()
-        {
-            return new JObject() {
-                    { "ExecutionTime", 0 },
-                    { "Errors", new JArray() } };
+            result["JobDuration"] = sourceArray
+                .SelectMany(obj => obj.Children())
+                .OfType<JProperty>()
+                .Where(prop => prop.Name == "ExecutionTime")
+                .Sum(prop => (int)prop.Value);
         }
 
         private JArray ArrayFromSourceFile()
@@ -153,11 +122,56 @@ namespace DbTester
             }
             catch
             {
-                DropTable dropTableQuery = new(_tableName);
-                SqlCommand dropTableCommand = new(dropTableQuery.ToString(), connection);
-                dropTableCommand.ExecuteNonQuery();
+                DropTable(connection);
                 createTableCommand.ExecuteNonQuery();
             }
+        }
+
+        private JObject GetResultTemplate()
+        {
+            JObject result = new();
+            result["Status"] = "Success";
+            result["TestCount"] = 0;
+            result["SuccessfulTests"] = 0;
+            result["FailedTests"] = 0;
+            result["ObjectCount"] = 0;
+            result["JobDuration"] = 0;
+            result["Create"] = new JObject()
+            {
+                { "INSERT_ALL", GetSubObject() },
+                { "INSERT_VIA_MERGE", GetSubObject() }
+            };
+            result["Read"] = new JObject()
+            {
+                { "SELECT_SINGLE", GetSubObject() },
+                { "SELECT_ALL", GetSubObject() }
+            };
+            result["Update"] = new JObject()
+            {
+                { "UPDATE_SINGLE", GetSubObject() },
+                { "UPDATE_ALL", GetSubObject() },
+                { "UPDATE_VIA_MERGE", GetSubObject() }
+            };
+            result["Delete"] = new JObject()
+            {
+                { "DELETE_SINGLE", GetSubObject() },
+                { "DELETE_ALL", GetSubObject() },
+                { "TRUNCATE", GetSubObject() }
+            };
+            result["Merge"] = new JObject()
+            {
+                { "MERGE", GetSubObject() },
+                { "CONDITIONAL_MERGE", GetSubObject() }
+            };
+
+            return result;
+        }
+
+        private JObject GetSubObject()
+        {
+            return new JObject() {
+                    { "ExecutionTime", 0 },
+                    { "Errors", new JArray() } };
         }
 
         private void ReadSingleRow(IDataRecord dataRecord)
