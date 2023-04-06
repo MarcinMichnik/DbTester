@@ -13,7 +13,8 @@ namespace DbTester
         private string _filePath;
         private string _dbConnectionString;
         private readonly string _tableName;
-        public DbSimulation(string filePath, string dbConnectionString)
+        private readonly bool _silent;
+        public DbSimulation(string filePath, string dbConnectionString, bool silent)
         {
             _filePath = filePath;
             _dbConnectionString = dbConnectionString;
@@ -21,6 +22,8 @@ namespace DbTester
             Guid guid = Guid.NewGuid();
             string guidString = guid.ToString().Replace("-", "_");
             _tableName = $"T_TEST_TABLE_{guidString}";
+
+            _silent = silent;
         }
         public string Run()
         {
@@ -49,23 +52,55 @@ namespace DbTester
             DateTime before;
 
             before = new();
-            InsertEach(sourceArray, connection);
-            result["Create"]["INSERT_ALL"]["ExecutionTime"] 
-                = (DateTime.Now - before).Milliseconds;
+            try 
+            {
+                InsertEach(sourceArray, connection);
+            }
+            catch (Exception e)
+            {
+                AddError(result, e.Message, "Create", "INSERT_ALL");
+            }
+            result["Create"]["INSERT_ALL"]["ExecutionTime"]
+                    = (DateTime.Now - before).Milliseconds;
             result["TestCount"] = (int)result["TestCount"] + 1;
 
             before = new();
-            SelectAndReadAll(connection);
+            try
+            {
+                SelectAndReadAll(connection);
+            }
+            catch (Exception e)
+            {
+                AddError(result, e.Message, "Read", "SELECT_ALL");
+            }
             result["Read"]["SELECT_ALL"]["ExecutionTime"]
                 = (DateTime.Now - before).Milliseconds;
             result["TestCount"] = (int)result["TestCount"] + 1;
 
             before = new();
-            SelectAndReadSingle(sourceArray, connection);
+            try
+            {
+                SelectAndReadSingle(sourceArray, connection);
+            }
+            catch (Exception e)
+            {
+                AddError(result, e.Message, "Read", "SELECT_SINGLE");
+            }
             result["Read"]["SELECT_SINGLE"]["ExecutionTime"]
                 = (DateTime.Now - before).Milliseconds;
             result["TestCount"] = (int)result["TestCount"] + 1;
 
+            SumUpTotalJobDuration(result);
+        }
+
+        private void AddError(JObject result, string message, string operationType, string statement)
+        {
+            JArray errors = (JArray)result[operationType][statement]["Errors"];
+            errors.Add(message);
+        }
+
+        private static void SumUpTotalJobDuration(JObject result)
+        {
             IEnumerable<JToken> all = result.DescendantsAndSelf();
             IEnumerable<JProperty> allProps = all.OfType<JProperty>();
             IEnumerable<JProperty> allTimes = allProps.Where(prop => prop.Name == "ExecutionTime");
@@ -105,7 +140,7 @@ namespace DbTester
 
             while (reader.Read())
             {
-                ReadSingleRow(reader);
+                ReadSingleRow(reader, silent: _silent);
             }
             reader.Close();
         }
@@ -120,7 +155,7 @@ namespace DbTester
 
             while (reader.Read())
             {
-                ReadSingleRow(reader);
+                ReadSingleRow(reader, silent: _silent);
             }
             reader.Close();
         }
@@ -194,17 +229,20 @@ namespace DbTester
                     { "Errors", new JArray() } };
         }
 
-        private void ReadSingleRow(IDataRecord dataRecord)
+        private void ReadSingleRow(IDataRecord dataRecord, bool silent)
         {
             for (int i = 0; i < dataRecord.FieldCount; i++)
             {
-                Console.Write(dataRecord[i]);
-                if (i != dataRecord.FieldCount - 1)
+                object val = dataRecord[i];
+                if (!silent)
+                    Console.Write(val);
+                if (!silent && i != dataRecord.FieldCount - 1 )
                 {
-                    Console.Write(", ");
+                    Console.Write(',');
                 }
             }
-            Console.Write('\n');
+            if (!silent)
+                Console.Write('\n');
         }
     }
 }
