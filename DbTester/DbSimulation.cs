@@ -3,8 +3,6 @@ using System.Data;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
-using System.Linq;
-using System.Text.Json.Nodes;
 
 namespace DbTester
 {
@@ -12,16 +10,20 @@ namespace DbTester
     {
         private string _filePath;
         private string _dbConnectionString;
+        private SqlConnection _connection;
+        private string _guid;
         private readonly string _tableName;
         private readonly bool _silent;
         public DbSimulation(string filePath, string dbConnectionString, bool silent)
         {
             _filePath = filePath;
             _dbConnectionString = dbConnectionString;
+            _connection = new(_dbConnectionString);
 
             Guid guid = Guid.NewGuid();
-            string guidString = guid.ToString().Replace("-", "_");
-            _tableName = $"T_TEST_TABLE_{guidString}";
+            string guidString = guid.ToString();
+            _guid = guidString.Replace("-", "_");
+            _tableName = $"T_TEST_TABLE_{_guid}";
 
             _silent = silent;
         }
@@ -33,64 +35,61 @@ namespace DbTester
             JArray sourceArray = ArrayFromSourceFile();
             result["ObjectCount"] = sourceArray.Count;
 
-            SqlConnection connection = new(_dbConnectionString);
-            connection.Open();
-
-            CreateOrReplaceTable(sourceArray, connection);
-
-            PerformTests(result, sourceArray, connection);
-
-            DropTable(connection);
-
-            connection.Close();
+            _connection.Open();
+            CreateOrReplaceTable(sourceArray);
+            PerformTests(result, sourceArray);
+            DropTable();
+            _connection.Close();
 
             return result.ToString();
         }
 
-        private void PerformTests(JObject result, JArray sourceArray, SqlConnection connection)
+        private void PerformTests(JObject result, JArray sourceArray)
         {
-            DateTime before;
-
-            before = new();
-            try 
-            {
-                InsertEach(sourceArray, connection);
-            }
-            catch (Exception e)
-            {
-                AddError(result, e.Message, "Create", "INSERT_ALL");
-            }
-            result["Create"]["INSERT_ALL"]["ExecutionTime"]
-                    = (DateTime.Now - before).Milliseconds;
-            result["TestCount"] = (int)result["TestCount"] + 1;
-
-            before = new();
-            try
-            {
-                SelectAndReadAll(connection);
-            }
-            catch (Exception e)
-            {
-                AddError(result, e.Message, "Read", "SELECT_ALL");
-            }
-            result["Read"]["SELECT_ALL"]["ExecutionTime"]
-                = (DateTime.Now - before).Milliseconds;
-            result["TestCount"] = (int)result["TestCount"] + 1;
-
-            before = new();
-            try
-            {
-                SelectAndReadSingle(sourceArray, connection);
-            }
-            catch (Exception e)
-            {
-                AddError(result, e.Message, "Read", "SELECT_SINGLE");
-            }
-            result["Read"]["SELECT_SINGLE"]["ExecutionTime"]
-                = (DateTime.Now - before).Milliseconds;
-            result["TestCount"] = (int)result["TestCount"] + 1;
-
+            TestInsertAll(result, sourceArray);
+            TestSelectAll(result);
+            TestSelectSingle(result, sourceArray);
             SumUpTotalJobDuration(result);
+        }
+
+        private void TestInsertAll(JObject result, JArray sourceArray)
+        {
+            TestOperation(result, "Create", "INSERT_ALL", () =>
+            {
+                InsertEach(sourceArray);
+            });
+        }
+
+        private void TestSelectAll(JObject result)
+        {
+            TestOperation(result, "Read", "SELECT_ALL", () =>
+            {
+                SelectAndReadAll();
+            });
+        }
+
+        private void TestSelectSingle(JObject result, JArray sourceArray)
+        {
+            TestOperation(result, "Read", "SELECT_SINGLE", () =>
+            {
+                SelectAndReadSingle(sourceArray);
+            });
+        }
+
+        private void TestOperation(JObject result, string operationType, string statement, Action action)
+        {
+            DateTime before = DateTime.Now;
+            try
+            {
+                action();
+            }
+            catch (Exception e)
+            {
+                AddError(result, e.Message, operationType, statement);
+            }
+
+            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).Milliseconds;
+            result["TestCount"] = (int)result["TestCount"] + 1;
         }
 
         private void AddError(JObject result, string message, string operationType, string statement)
@@ -117,7 +116,7 @@ namespace DbTester
             return sourceArray;
         }
 
-        private void InsertEach(JArray sourceArray, SqlConnection connection)
+        private void InsertEach(JArray sourceArray)
         {
             foreach (JObject obj in sourceArray.Children<JObject>())
             {
@@ -128,57 +127,55 @@ namespace DbTester
                     JToken val = prop.Value;
                     insertQuery.AddColumn(propName, val);
                 }
-                SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), connection);
+                SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection);
                 insertCommand.ExecuteNonQuery();
             }
         }
 
-        private void SelectAndReadAll(SqlConnection connection)
+        private void SelectAndReadAll()
         {
             Select selectQuery = new(_tableName, selectAllFields: true);
-            SqlCommand selectCommand = new(selectQuery.ToString(), connection);
-            SqlDataReader reader = selectCommand.ExecuteReader();
-
-            while (reader.Read())
-            {
-                ReadSingleRow(reader, silent: _silent);
-            }
-            reader.Close();
+            SelectAndRead(selectQuery);
         }
 
-        private void SelectAndReadSingle(JArray sourceArray, SqlConnection connection)
+        private void SelectAndReadSingle(JArray sourceArray)
         {
             Select selectQuery = new(_tableName, selectAllFields: true);
             JProperty id = (JProperty)sourceArray.First().First();
             selectQuery.Where(id.Name, "=", id.Value);
-            SqlCommand selectCommand = new(selectQuery.ToString(), connection);
-            SqlDataReader reader = selectCommand.ExecuteReader();
+            SelectAndRead(selectQuery);
+        }
 
+        private void SelectAndRead(Select selectQuery)
+        {
+            SqlCommand selectCommand = new(selectQuery.ToString(), _connection);
+
+            SqlDataReader reader = selectCommand.ExecuteReader();
             while (reader.Read())
             {
-                ReadSingleRow(reader, silent: _silent);
+                ReadSingleRow(reader);
             }
             reader.Close();
         }
 
-        private void DropTable(SqlConnection connection)
+        private void DropTable()
         {
             DropTable dropTableQuery = new(_tableName);
-            SqlCommand dropTableCommand = new(dropTableQuery.ToString(), connection);
+            SqlCommand dropTableCommand = new(dropTableQuery.ToString(), _connection);
             dropTableCommand.ExecuteNonQuery();
         }
 
-        private void CreateOrReplaceTable(JArray sourceArray, SqlConnection connection)
+        private void CreateOrReplaceTable(JArray sourceArray)
         {
             CreateTable createTableQuery = new(_tableName, sourceArray);
-            SqlCommand createTableCommand = new(createTableQuery.ToString(), connection);
+            SqlCommand createTableCommand = new(createTableQuery.ToString(), _connection);
             try
             {
                 createTableCommand.ExecuteNonQuery();
             }
             catch
             {
-                DropTable(connection);
+                DropTable();
                 createTableCommand.ExecuteNonQuery();
             }
         }
@@ -230,19 +227,17 @@ namespace DbTester
                     { "Errors", new JArray() } };
         }
 
-        private void ReadSingleRow(IDataRecord dataRecord, bool silent)
+        private void ReadSingleRow(IDataRecord dataRecord)
         {
             for (int i = 0; i < dataRecord.FieldCount; i++)
             {
                 object val = dataRecord[i];
-                if (!silent)
+                if (!_silent)
                     Console.Write(val);
-                if (!silent && i != dataRecord.FieldCount - 1 )
-                {
+                if (!_silent && i != dataRecord.FieldCount - 1 )
                     Console.Write(',');
-                }
             }
-            if (!silent)
+            if (!_silent)
                 Console.Write('\n');
         }
     }
