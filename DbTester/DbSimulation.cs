@@ -24,6 +24,7 @@ namespace DbTester
         }
         public string Run()
         {
+            // result will be changed during testing
             JObject result = GetResultTemplate();
 
             JArray sourceArray = ArrayFromSourceFile();
@@ -34,15 +35,22 @@ namespace DbTester
 
             CreateOrReplaceTable(sourceArray, connection);
 
-            InsertEach(sourceArray, connection);
-
-            SelectAndRead(connection);
+            PerformTests(result, sourceArray, connection);
 
             DropTable(connection);
 
             connection.Close();
 
             return result.ToString();
+        }
+
+        private void PerformTests(JObject result, JArray sourceArray, SqlConnection connection)
+        {
+            InsertEach(sourceArray, connection);
+            result["TestCount"] = (int)result["TestCount"] + 1;
+
+            SelectAndRead(connection);
+            result["TestCount"] = (int)result["TestCount"] + 1;
         }
 
         private JObject GetResultTemplate()
@@ -56,33 +64,40 @@ namespace DbTester
             result["JobDuration"] = 0;
             result["Create"] = new JObject()
             {
-                { "INSERT", new JObject() },
-                { "INSERT_VIA_MERGE", new JObject() }
+                { "INSERT", GetSubObject() },
+                { "INSERT_VIA_MERGE", GetSubObject() }
             };
             result["Read"] = new JObject()
             {
-                { "SELECT_SINGLE", new JObject() },
-                { "SELECT_ALL", new JObject() }
+                { "SELECT_SINGLE", GetSubObject() },
+                { "SELECT_ALL", GetSubObject() }
             };
             result["Update"] = new JObject()
             {
-                { "UPDATE_SINGLE", new JObject() },
-                { "UPDATE_ALL", new JObject() },
-                { "UPDATE_VIA_MERGE", new JObject() }
+                { "UPDATE_SINGLE", GetSubObject() },
+                { "UPDATE_ALL", GetSubObject() },
+                { "UPDATE_VIA_MERGE", GetSubObject() }
             };
             result["Delete"] = new JObject()
             {
-                { "DELETE_SINGLE", new JObject() },
-                { "DELETE_ALL", new JObject() },
-                { "TRUNCATE", new JObject() }
+                { "DELETE_SINGLE", GetSubObject() },
+                { "DELETE_ALL", GetSubObject() },
+                { "TRUNCATE", GetSubObject() }
             };
             result["Merge"] = new JObject()
             {
-                { "MERGE", new JObject() },
-                { "CONDITIONAL_MERGE", new JObject() }
+                { "MERGE", GetSubObject() },
+                { "CONDITIONAL_MERGE", GetSubObject() }
             };
 
             return result;
+        }
+
+        private JObject GetSubObject()
+        {
+            return new JObject() {
+                    { "ExecutionTime", 0 },
+                    { "Errors", new JArray() } };
         }
 
         private JArray ArrayFromSourceFile()
