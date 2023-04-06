@@ -9,10 +9,10 @@ namespace DbTester.Statements
         private string _tableName;
         private bool _selectAll;
 
-        public Select(string tableName, bool selectAll) 
+        public Select(string tableName, bool selectAllFields) 
         {
             _tableName = tableName;
-            _selectAll = selectAll;
+            _selectAll = selectAllFields;
             WhereClauses = new();
             Columns = new();
         }

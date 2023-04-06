@@ -55,8 +55,14 @@ namespace DbTester
             result["TestCount"] = (int)result["TestCount"] + 1;
 
             before = new();
-            SelectAndRead(connection);
+            SelectAndReadAll(connection);
             result["Read"]["SELECT_ALL"]["ExecutionTime"]
+                = (DateTime.Now - before).Milliseconds;
+            result["TestCount"] = (int)result["TestCount"] + 1;
+
+            before = new();
+            SelectAndReadSingle(sourceArray, connection);
+            result["Read"]["SELECT_SINGLE"]["ExecutionTime"]
                 = (DateTime.Now - before).Milliseconds;
             result["TestCount"] = (int)result["TestCount"] + 1;
 
@@ -91,9 +97,24 @@ namespace DbTester
             }
         }
 
-        private void SelectAndRead(SqlConnection connection)
+        private void SelectAndReadAll(SqlConnection connection)
         {
-            Select selectQuery = new(_tableName, true);
+            Select selectQuery = new(_tableName, selectAllFields: true);
+            SqlCommand selectCommand = new(selectQuery.ToString(), connection);
+            SqlDataReader reader = selectCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ReadSingleRow(reader);
+            }
+            reader.Close();
+        }
+
+        private void SelectAndReadSingle(JArray sourceArray, SqlConnection connection)
+        {
+            Select selectQuery = new(_tableName, selectAllFields: true);
+            JProperty id = (JProperty)sourceArray.First().First();
+            selectQuery.Where(id.Name, "=", id.Value);
             SqlCommand selectCommand = new(selectQuery.ToString(), connection);
             SqlDataReader reader = selectCommand.ExecuteReader();
 
