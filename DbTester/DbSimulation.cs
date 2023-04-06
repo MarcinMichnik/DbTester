@@ -4,6 +4,7 @@ using DbTester.Statements;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
 using QueryBuilder.DataTypes;
+using System.Security.Cryptography.X509Certificates;
 
 namespace DbTester
 {
@@ -11,35 +12,29 @@ namespace DbTester
     {
         private string _filePath;
         private string _dbConnectionString;
-        private readonly string _tableName = "T_TEST_TABLE";
+        private readonly string _tableName;
         public DbSimulation(string filePath, string dbConnectionString)
         {
             _filePath = filePath;
             _dbConnectionString = dbConnectionString;
+
+            Guid guid = Guid.NewGuid();
+            _tableName = $"T_TEST_TABLE_{guid}";
         }
         public string Run()
         {
-            string fullPath = Path.GetFullPath(_filePath);
-            string jsonString = File.ReadAllText(fullPath);
-            JArray input = JArray.Parse(jsonString);
-            CreateTable ct = new(_tableName, input);
-            string createTableQuery = ct.ToString();
+            JArray result = new();
+            string sourceFileFullPath = Path.GetFullPath(_filePath);
+            string sourceJsonString = File.ReadAllText(sourceFileFullPath);
+            // Parse validates whether source data is jarray format
+            JArray sourceArray = JArray.Parse(sourceJsonString);
 
             SqlConnection connection = new(_dbConnectionString);
             connection.Open();
-            SqlCommand createTableCommand = new(createTableQuery, connection);
-            try 
-            {
-                createTableCommand.ExecuteNonQuery();
-            } catch (Exception ex) 
-            {
-                DropTable dropTableQueryExc = new(_tableName);
-                SqlCommand dropTableCommandExc = new(dropTableQueryExc.ToString(), connection);
-                dropTableCommandExc.ExecuteNonQuery();
-                createTableCommand.ExecuteNonQuery();
-            }
-            
-            foreach (JObject obj in input.Children<JObject>())
+
+            CreateOrReplaceTable(sourceArray, connection);
+
+            foreach (JObject obj in sourceArray.Children<JObject>())
             {
                 Insert insertQuery = new(_tableName);
                 foreach (JProperty prop in obj.Properties())
@@ -50,7 +45,7 @@ namespace DbTester
                 }
                 SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), connection);
                 insertCommand.ExecuteNonQuery();
-            }    
+            }
 
             Select selectQuery = new(_tableName, true);
             SqlCommand selectCommand = new(selectQuery.ToString(), connection);
@@ -67,7 +62,24 @@ namespace DbTester
             dropTableCommand.ExecuteNonQuery();
 
             connection.Close();
-            return new JArray().ToString();
+            return result.ToString();
+        }
+
+        private void CreateOrReplaceTable(JArray sourceArray, SqlConnection connection)
+        {
+            CreateTable createTableQuery = new(_tableName, sourceArray);
+            SqlCommand createTableCommand = new(createTableQuery.ToString(), connection);
+            try
+            {
+                createTableCommand.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                DropTable dropTableQuery = new(_tableName);
+                SqlCommand dropTableCommand = new(dropTableQuery.ToString(), connection);
+                dropTableCommand.ExecuteNonQuery();
+                createTableCommand.ExecuteNonQuery();
+            }
         }
 
         private void ReadSingleRow(IDataRecord dataRecord)
