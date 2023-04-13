@@ -4,6 +4,8 @@
         "Name": "Adam",
         "Salary": 1256.34,
         "Savings": 10256.34,
+        "Address": "Warsaw",
+        "NumberOfAssets": 12,
         "DateOfBirth": "1996-05-24T08:21:23",
         "ModifiedAt": "1996-05-24T08:21:23"
     },
@@ -12,6 +14,8 @@
         "Name": "Marcus",
         "Salary": 1321.89,
         "Savings": 10256.34,
+        "Address": "Warsaw",
+        "NumberOfAssets": 234,
         "DateOfBirth": "1993-03-02T13:45:12",
         "ModifiedAt": "1996-05-24T08:21:23"
     },
@@ -20,6 +24,18 @@
         "Name": "Jack",
         "Salary": 924.67,
         "Savings": 10256.34,
+        "Address": "Warsaw",
+        "NumberOfAssets": 123,
+        "DateOfBirth": "1994-02-04T12:01:13",
+        "ModifiedAt": "1996-05-24T08:21:23"
+    },
+    {
+        "Id": 4,
+        "Name": "John",
+        "Salary": 1224.67,
+        "Savings": 8356.78,
+        "Address": "Warsaw",
+        "NumberOfAssets": 67,
         "DateOfBirth": "1994-02-04T12:01:13",
         "ModifiedAt": "1996-05-24T08:21:23"
     }
