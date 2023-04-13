@@ -3,6 +3,7 @@ using System.Data;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
+using DbTester.Commands;
 
 namespace DbTester
 {
@@ -49,7 +50,8 @@ namespace DbTester
             TestInsertAll(result, sourceArray);
             TestSelectAll(result);
             TestSelectSingle(result, sourceArray);
-            TestUpdateSingle(result, sourceArray);
+            new UpdateSingleExecutor(_tableName, _connection).Execute(result, sourceArray);
+
             SumUpTotalJobDuration(result);
         }
 
@@ -74,14 +76,6 @@ namespace DbTester
             TryExecuteOperation(result, "Read", "SELECT_SINGLE", () =>
             {
                 SelectAndReadSingle(sourceArray);
-            });
-        }
-
-        private void TestUpdateSingle(JObject result, JArray sourceArray)
-        {
-            TryExecuteOperation(result, "Update", "UPDATE_SINGLE", () =>
-            {
-                UpdateSingle(sourceArray);
             });
         }
 
@@ -167,23 +161,6 @@ namespace DbTester
                 ReadSingleRow(reader);
             }
             reader.Close();
-        }
-
-        private void UpdateSingle(JArray sourceArray)
-        {
-            Update updateQuery = new(_tableName);
-            JProperty idProp = (JProperty)sourceArray.First().First();
-            JObject firstObject = (JObject)sourceArray.First();
-            foreach (JProperty? prop in firstObject.Properties())
-            {
-                if (prop is null)
-                    continue;
-                updateQuery.AddColumn(prop.Name, prop.Value);
-            }
-            updateQuery.Where(idProp.Name, "=", idProp.Value);
-
-            SqlCommand updateCommand = new(updateQuery.ToString(TimeZoneInfo.Local), _connection);
-            updateCommand.ExecuteNonQuery();
         }
 
         private void DropTable()
