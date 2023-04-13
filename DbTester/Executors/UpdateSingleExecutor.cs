@@ -36,7 +36,7 @@ namespace DbTester.Commands
 
             DateTime before = DateTime.Now;
             updateCommand.ExecuteNonQuery();
-            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).Milliseconds;
+            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).TotalMilliseconds;
         }
     }
 }

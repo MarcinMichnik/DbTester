@@ -25,11 +25,11 @@ namespace DbTester.Executors
             JProperty idProp = (JProperty)sourceArray.First().First();
             deleteQuery.Where(idProp.Name, "=", idProp.Value);
 
-            SqlCommand updateCommand = new(deleteQuery.ToString(TimeZoneInfo.Local), _connection);
+            SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local), _connection);
 
             DateTime before = DateTime.Now;
-            updateCommand.ExecuteNonQuery();
-            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).Milliseconds;
+            deleteCommand.ExecuteNonQuery();
+            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).TotalMilliseconds;
         }
     }
 }

@@ -107,6 +107,7 @@ namespace DbTester
             result["Create"] = new JObject()
             {
                 { "INSERT_ALL", GetSubObject() },
+                { "INSERT_SINGLE", GetSubObject() },
                 { "INSERT_VIA_MERGE", GetSubObject() }
             };
             result["Read"] = new JObject()

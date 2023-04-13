@@ -34,6 +34,9 @@ namespace DbTester
 
             DeleteSingleExecutor deleteSingleExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(deleteSingleExecutor);
+
+            InsertSingleExecutor insertSingleExecutor = new(simulation);
+            simulation.SqlStatementExecutors.Add(insertSingleExecutor);
         }
     }
 }

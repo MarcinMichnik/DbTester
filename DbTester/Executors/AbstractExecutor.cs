@@ -53,7 +53,7 @@ namespace DbTester.Executors
                 Console.WriteLine(row); // FIXME - do not log here
             }
             reader.Close();
-            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).Milliseconds;
+            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).TotalMilliseconds;
         }
 
         protected string ReadSingleRow(IDataRecord dataRecord)

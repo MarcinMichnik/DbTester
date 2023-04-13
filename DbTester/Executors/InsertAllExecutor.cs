@@ -20,7 +20,7 @@ namespace DbTester.Executors
 
         private void InsertEach(JObject result, JArray sourceArray, string operationType, string statement)
         {
-            var totalTime = 0;
+            double totalTime = 0d;
             foreach (JObject obj in sourceArray.Children<JObject>())
             {
                 Insert insertQuery = new(_tableName);
@@ -34,7 +34,7 @@ namespace DbTester.Executors
 
                 DateTime before = DateTime.Now;
                 insertCommand.ExecuteNonQuery();
-                totalTime += (DateTime.Now - before).Milliseconds;
+                totalTime += (DateTime.Now - before).TotalMilliseconds;
             }
             result[operationType][statement]["ExecutionTime"] = totalTime;
         }
