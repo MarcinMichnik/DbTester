@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Text;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
+using QueryBuilder.Statements;
 
 namespace DbTester.Executors
 {
@@ -21,7 +22,6 @@ namespace DbTester.Executors
         {
             result["TestCount"] = (int)result["TestCount"] + 1;
             result["SuccessfulTests"] = (int)result["SuccessfulTests"] + 1;
-            DateTime before = DateTime.Now;
             try
             {
                 action();
@@ -30,7 +30,6 @@ namespace DbTester.Executors
             {
                 AddError(result, e.Message, operationType, statement);
             }
-            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).Milliseconds;
         }
 
         protected void AddError(JObject result, string message, string operationType, string statement)
@@ -42,16 +41,19 @@ namespace DbTester.Executors
             result["FailedTests"] = (int)result["FailedTests"] + 1;
         }
 
-        protected void SelectAndRead(Select selectQuery)
+        protected void SelectAndRead(JObject result, Select selectQuery, string operationType, string statement)
         {
             SqlCommand selectCommand = new(selectQuery.ToString(), _connection);
 
+            DateTime before = DateTime.Now;
             SqlDataReader reader = selectCommand.ExecuteReader();
             while (reader.Read())
             {
-                ReadSingleRow(reader);
+                string row = ReadSingleRow(reader);
+                Console.WriteLine(row); // FIXME - do not log here
             }
             reader.Close();
+            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).Milliseconds;
         }
 
         protected string ReadSingleRow(IDataRecord dataRecord)

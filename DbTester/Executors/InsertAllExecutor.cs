@@ -10,14 +10,17 @@ namespace DbTester.Executors
 
         public void Execute(JObject result, JArray sourceArray)
         {
-            TryExecuteOperation(result, "Create", "INSERT_ALL", () =>
+            string operationType = "Create";
+            string statement = "INSERT_ALL";
+            TryExecuteOperation(result, operationType, statement, () =>
             {
-                InsertEach(sourceArray);
+                InsertEach(result, sourceArray, operationType, statement);
             });
         }
 
-        private void InsertEach(JArray sourceArray)
+        private void InsertEach(JObject result, JArray sourceArray, string operationType, string statement)
         {
+            var totalTime = 0;
             foreach (JObject obj in sourceArray.Children<JObject>())
             {
                 Insert insertQuery = new(_tableName);
@@ -28,8 +31,12 @@ namespace DbTester.Executors
                     insertQuery.AddColumn(propName, val);
                 }
                 SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection);
+
+                DateTime before = DateTime.Now;
                 insertCommand.ExecuteNonQuery();
+                totalTime += (DateTime.Now - before).Milliseconds;
             }
+            result[operationType][statement]["ExecutionTime"] = totalTime;
         }
     }
 }

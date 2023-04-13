@@ -11,13 +11,15 @@ namespace DbTester.Commands
 
         public void Execute(JObject result, JArray sourceArray)
         {
-            TryExecuteOperation(result, "Update", "UPDATE_SINGLE", () =>
+            string operationType = "Update";
+            string statement = "UPDATE_SINGLE";
+            TryExecuteOperation(result, operationType, statement, () =>
             {
-                UpdateSingle(sourceArray);
+                UpdateSingle(result, sourceArray, operationType, statement);
             });
         }
 
-        private void UpdateSingle(JArray sourceArray)
+        private void UpdateSingle(JObject result, JArray sourceArray, string operationType, string statement)
         {
             Update updateQuery = new(_tableName);
             JProperty idProp = (JProperty)sourceArray.First().First();
@@ -31,7 +33,10 @@ namespace DbTester.Commands
             updateQuery.Where(idProp.Name, "=", idProp.Value);
 
             SqlCommand updateCommand = new(updateQuery.ToString(TimeZoneInfo.Local), _connection);
+
+            DateTime before = DateTime.Now;
             updateCommand.ExecuteNonQuery();
+            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).Milliseconds;
         }
     }
 }

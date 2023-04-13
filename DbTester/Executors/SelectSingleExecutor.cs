@@ -9,18 +9,20 @@ namespace DbTester.Executors
         public SelectSingleExecutor(DbSimulation simulation) : base(simulation) { }
         public void Execute(JObject result, JArray sourceArray)
         {
-            TryExecuteOperation(result, "Read", "SELECT_SINGLE", () =>
+            string operationType = "Read";
+            string statement = "SELECT_SINGLE";
+            TryExecuteOperation(result, operationType, statement, () =>
             {
-                SelectAndReadSingle(sourceArray);
+                SelectAndReadSingle(result, sourceArray, operationType, statement);
             });
         }
 
-        private void SelectAndReadSingle(JArray sourceArray)
+        private void SelectAndReadSingle(JObject result, JArray sourceArray, string operationType, string statement)
         {
             Select selectQuery = new(_tableName, selectAllFields: true);
             JProperty id = (JProperty)sourceArray.First().First();
             selectQuery.Where(id.Name, "=", id.Value);
-            SelectAndRead(selectQuery);
+            SelectAndRead(result, selectQuery, operationType, statement);
         }
     }
 }

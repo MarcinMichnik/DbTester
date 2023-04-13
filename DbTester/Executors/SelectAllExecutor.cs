@@ -1,5 +1,6 @@
 ﻿using DbTester.Statements;
 using Newtonsoft.Json.Linq;
+using QueryBuilder.Statements;
 
 namespace DbTester.Executors
 {
@@ -9,16 +10,18 @@ namespace DbTester.Executors
 
         public void Execute(JObject result, JArray sourceArray)
         {
-            TryExecuteOperation(result, "Read", "SELECT_ALL", () =>
+            string operationType = "Read";
+            string statement = "SELECT_ALL";
+            TryExecuteOperation(result, operationType, statement, () =>
             {
-                SelectAndReadAll();
+                SelectAndReadAll(result, operationType, statement);
             });
         }
 
-        private void SelectAndReadAll()
+        private void SelectAndReadAll(JObject result, string operationType, string statement)
         {
             Select selectQuery = new(_tableName, selectAllFields: true);
-            SelectAndRead(selectQuery);
+            SelectAndRead(result, selectQuery, operationType, statement);
         }
     }
 }
