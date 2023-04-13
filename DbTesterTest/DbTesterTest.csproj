@@ -20,4 +20,8 @@
     <ProjectReference Include="..\DbTester\DbTester.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ExecutorTests\" />
+  </ItemGroup>
+
 </Project>

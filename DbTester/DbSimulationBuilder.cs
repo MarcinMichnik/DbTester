@@ -23,11 +23,17 @@ namespace DbTester
             UpdateSingleExecutor updateSingleExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(updateSingleExecutor);
 
+            UpdateAllExecutor updateAllExecutor = new(simulation);
+            simulation.SqlStatementExecutors.Add(updateAllExecutor);
+
             SelectSingleExecutor selectSingleExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(selectSingleExecutor);
 
             SelectAllExecutor selectAllExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(selectAllExecutor);
+
+            DeleteSingleExecutor deleteSingleExecutor = new(simulation);
+            simulation.SqlStatementExecutors.Add(deleteSingleExecutor);
         }
     }
 }
