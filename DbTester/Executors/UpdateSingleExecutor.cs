@@ -1,18 +1,13 @@
 ﻿using System.Data.SqlClient;
+using DbTester.Executors;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
 
 namespace DbTester.Commands
 {
-    public class UpdateSingleExecutor
+    public class UpdateSingleExecutor : AbstractExecutor, IExecutor
     {
-        private readonly string _tableName;
-        private readonly SqlConnection _connection;
-        public UpdateSingleExecutor(string tableName, SqlConnection connection)
-        { 
-            _tableName = tableName;
-            _connection = connection;
-        }
+        public UpdateSingleExecutor(DbSimulation simulation) : base(simulation) { }
 
         public void Execute(JObject result, JArray sourceArray)
         {
@@ -20,31 +15,6 @@ namespace DbTester.Commands
             {
                 UpdateSingle(sourceArray);
             });
-        }
-
-        private void TryExecuteOperation(JObject result, string operationType, string statement, Action action)
-        {
-            result["TestCount"] = (int)result["TestCount"] + 1;
-            result["SuccessfulTests"] = (int)result["SuccessfulTests"] + 1;
-            DateTime before = DateTime.Now;
-            try
-            {
-                action();
-            }
-            catch (Exception e)
-            {
-                AddError(result, e.Message, operationType, statement);
-            }
-            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).Milliseconds;
-        }
-
-        private void AddError(JObject result, string message, string operationType, string statement)
-        {
-            JArray errors = (JArray)result[operationType][statement]["Errors"];
-            errors.Add(message);
-            result["Status"] = "Error";
-            result["SuccessfulTests"] = (int)result["SuccessfulTests"] - 1;
-            result["FailedTests"] = (int)result["FailedTests"] + 1;
         }
 
         private void UpdateSingle(JArray sourceArray)
