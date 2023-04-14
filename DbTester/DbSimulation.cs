@@ -105,8 +105,7 @@ namespace DbTester
             result["Create"] = new JObject()
             {
                 { "INSERT_ALL", GetSubObject() },
-                { "INSERT_SINGLE", GetSubObject() },
-                { "INSERT_VIA_MERGE", GetSubObject() }
+                { "INSERT_SINGLE", GetSubObject() }
             };
             result["Read"] = new JObject()
             {
@@ -116,8 +115,7 @@ namespace DbTester
             result["Update"] = new JObject()
             {
                 { "UPDATE_SINGLE", GetSubObject() },
-                { "UPDATE_ALL", GetSubObject() },
-                { "UPDATE_VIA_MERGE", GetSubObject() }
+                { "UPDATE_ALL", GetSubObject() }
             };
             result["Delete"] = new JObject()
             {
@@ -127,8 +125,7 @@ namespace DbTester
             };
             result["Merge"] = new JObject()
             {
-                { "MERGE", GetSubObject() },
-                { "CONDITIONAL_MERGE", GetSubObject() }
+                { "MERGE", GetSubObject() }
             };
 
             return result;
