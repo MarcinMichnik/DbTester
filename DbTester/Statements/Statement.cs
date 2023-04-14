@@ -36,8 +36,7 @@ namespace QueryBuilder.Statements
 
         public void Where(string columnName, string arithmeticSign, JToken value)
         {
-            if (WhereClauses is null)
-                throw new Exception("Cannot add where clause because WhereClauses property is null!");
+            WhereClauses ??= new();
 
             KeyValuePair<string, JToken> pair = new(arithmeticSign, value);
             WhereClauses.Add(columnName, pair);

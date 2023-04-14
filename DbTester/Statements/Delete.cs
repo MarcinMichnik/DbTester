@@ -1,19 +1,25 @@
-﻿namespace QueryBuilder.Statements
+﻿using System.Text;
+
+namespace QueryBuilder.Statements
 {
     public sealed class Delete : Statement, IStatement
     {
         public Delete(string tableName)
         {
             this.tableName = tableName;
-            WhereClauses = new();
         }
 
         public string ToString(TimeZoneInfo timeZone)
         {
-            string whereClauseLiterals = SerializeWhereClauses(timeZone);
-
-            return @$"DELETE FROM {tableName} 
-                      WHERE {whereClauseLiterals};";
+            StringBuilder sb = new();
+            sb.Append(@$"DELETE FROM {tableName}");
+            if (WhereClauses != null)
+            {
+                string whereClauseLiterals = SerializeWhereClauses(timeZone);
+                sb.Append($" WHERE {whereClauseLiterals}");
+            }
+            sb.Append(";");
+            return sb.ToString();
         }
     }
 }

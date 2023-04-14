@@ -37,6 +37,12 @@ namespace DbTester
 
             InsertSingleExecutor insertSingleExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(insertSingleExecutor);
+
+            DeleteAllExecutor deleteAllExecutor = new(simulation);
+            simulation.SqlStatementExecutors.Add(deleteAllExecutor);
+
+            TruncateExecutor truncateExecutor = new(simulation); // FIXME - will not delete anything
+            simulation.SqlStatementExecutors.Add(truncateExecutor);
         }
     }
 }

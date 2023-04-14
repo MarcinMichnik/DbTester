@@ -2,8 +2,6 @@
 using System.Data;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
-using QueryBuilder.Statements;
-using DbTester.Commands;
 using DbTester.Executors;
 
 namespace DbTester

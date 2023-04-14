@@ -1,5 +1,4 @@
 ﻿using DbTester.Statements;
-using System.Data.SqlClient;
 using Newtonsoft.Json.Linq;
 
 namespace DbTester.Executors

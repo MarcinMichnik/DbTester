@@ -19,6 +19,19 @@ namespace QueryBuilderTest.StatementTests
             Assert.That(actualEscaped, Is.EqualTo(expectedEscaped));
         }
 
+        [Test]
+        public void TestDeleteAll()
+        {
+            Delete query = new(TableName);
+            string expected = @$"DELETE FROM {TableName};";
+
+            string actual = query.ToString(TimeZone);
+            string actualEscaped = TestHelpers.RemoveWhitespace(actual);
+            string expectedEscaped = TestHelpers.RemoveWhitespace(expected);
+
+            Assert.That(actualEscaped, Is.EqualTo(expectedEscaped));
+        }
+
         private Delete GetSimpleDelete()
         {
             Delete query = new(TableName);

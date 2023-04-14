@@ -3,7 +3,6 @@ using System.Data.SqlClient;
 using System.Text;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
-using QueryBuilder.Statements;
 
 namespace DbTester.Executors
 {
