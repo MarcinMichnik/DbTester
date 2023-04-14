@@ -1,3 +1,6 @@
+using DbTester.DataTypes;
+using Newtonsoft.Json.Linq;
+using QueryBuilder.DataTypes;
 using QueryBuilder.Statements;
 
 namespace QueryBuilderTest.StatementTests
@@ -63,13 +66,16 @@ namespace QueryBuilderTest.StatementTests
         private Insert GetInsertWithoutMasterPrimaryKey()
         {
             Insert query = new(TableName);
-
-            query.AddColumn("ID", 1);
-            query.AddColumn("NAME", "HANNAH");
-            query.AddColumn("SAVINGS", 12.1);
-            query.AddColumn("DATE_FROM", DateTime.Parse("2022-01-01T00:00:00+01:00"));
-            query.AddColumn("MODIFIED_AT", CurrentTimestampCall);
-            query.AddColumn("MODIFIED_BY", ModifiedBy);
+            List<KeyValuePair<string, JToken>> columns = new();
+            columns.Add(new KeyValuePair<string, JToken>("ID", 1));
+            columns.Add(new KeyValuePair<string, JToken>("NAME", "HANNAH"));
+            columns.Add(new KeyValuePair<string, JToken>("SAVINGS", 12.1));
+            columns.Add(new KeyValuePair<string, JToken>("DATE_FROM", DateTime.Parse("2022-01-01T00:00:00+01:00")));
+            string timestampLiteral = CurrentTimestampCall.GetPrefixedLiteral();
+            columns.Add(new KeyValuePair<string, JToken>("MODIFIED_AT", timestampLiteral));
+            columns.Add(new KeyValuePair<string, JToken>("MODIFIED_BY", ModifiedBy));
+            Row row = new(columns);
+            query.AddRow(row);
 
             return query;
         }

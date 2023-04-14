@@ -1,5 +1,7 @@
 ﻿using System.Text;
+using DbTester.DataTypes;
 using Newtonsoft.Json.Linq;
+using QueryBuilder.DataTypes;
 using QueryBuilder.Statements;
 
 namespace QueryBuilder.BulkOperations
@@ -124,9 +126,14 @@ namespace QueryBuilder.BulkOperations
         {
             Insert insert = new(tableName, token);
 
-            insert.AddColumn("MODIFIED_AT", CurrentTimestampCall);
-            insert.AddColumn("MODIFIED_BY", ModifiedBy);
+            Row first = insert.Rows.First();
+            List<KeyValuePair<string, JToken>> columns = new();
+            SqlFunction func = new("CURRENT_TIMESTAMP");
+            first.Columns.Add("MODIFIED_AT", func.GetPrefixedLiteral());
+            first.Columns.Add("MODIFIED_BY", ModifiedBy);
+            Row row = new(columns);
 
+            insert.AddRow(row);
             return insert;
         }
 
@@ -134,14 +141,21 @@ namespace QueryBuilder.BulkOperations
         {
             Update update = new(tableName);
             JObject tokenObject = (JObject)token;
+            List<KeyValuePair<string, JToken>> columns = new();
             foreach (JProperty prop in tokenObject.Properties())
             {
                 if (IsNotPrimaryKey(prop.Name))
-                    update.AddColumn(prop.Name, prop.Value);
+                {
+                    columns.Add(new KeyValuePair<string, JToken>(prop.Name, prop.Value));
+                }
             }
 
-            update.AddColumn("MODIFIED_AT", CurrentTimestampCall);
-            update.AddColumn("MODIFIED_BY", ModifiedBy);
+            string literal = CurrentTimestampCall.GetPrefixedLiteral();
+            columns.Add(new KeyValuePair<string, JToken>("MODIFIED_AT", literal));
+            columns.Add(new KeyValuePair<string, JToken>("MODIFIED_BY", ModifiedBy));
+
+            Row row = new(columns);
+            update.AddRow(row);
 
             foreach (string identifier in primaryKeyIdentifiers)
             {

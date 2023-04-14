@@ -21,10 +21,6 @@ namespace DbTester.Executors
         private void DeleteAll(JObject result, JArray sourceArray, string operationType, string statement)
         {
             Delete deleteQuery = new(_tableName);
-
-            JProperty idProp = (JProperty)sourceArray.First().First();
-            deleteQuery.Where(idProp.Name, "<>", -1); // FIXME - one where is needed because of impl
-
             SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local), _connection);
 
             DateTime before = DateTime.Now;

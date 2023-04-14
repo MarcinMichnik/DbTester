@@ -1,4 +1,5 @@
 ﻿using System.Data.SqlClient;
+using DbTester.DataTypes;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
 
@@ -21,12 +22,15 @@ namespace DbTester.Executors
         {
             Update updateQuery = new(_tableName);
             JObject first = (JObject)sourceArray.First();
+            List<KeyValuePair<string, JToken>> columns = new();
             foreach (JProperty prop in first.Properties())
             {
                 string propName = prop.Name;
                 JToken val = prop.Value;
-                updateQuery.AddColumn(propName, val);
+                columns.Add(new KeyValuePair<string, JToken>(propName, val));
             }
+            Row row = new(columns);
+            updateQuery.AddRow(row);
             updateQuery.Where("Id", "<>", ""); // One where needs to be used because of underlying impl
 
             SqlCommand updateCommand = new(updateQuery.ToString(TimeZoneInfo.Local), _connection);

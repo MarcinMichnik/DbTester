@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using DbTester.DataTypes;
 using Newtonsoft.Json.Linq;
 
 namespace QueryBuilder.Statements
@@ -9,7 +10,6 @@ namespace QueryBuilder.Statements
         {
             this.tableName = tableName;
             WhereClauses = new();
-            Columns = new();
         }
 
         public string ToString(TimeZoneInfo timeZone)
@@ -32,12 +32,10 @@ namespace QueryBuilder.Statements
 
         private string SerializeColumns(TimeZoneInfo timeZone)
         {
-            if (Columns is null)
-                throw new Exception("Cannot serialize update columns because Columns property is null!");
-
             StringBuilder columns = new();
 
-            foreach (KeyValuePair<string, JToken> column in Columns)
+            Row first = Rows.First();
+            foreach (KeyValuePair<string, JToken> column in first.Columns)
             {
                 string convertedValue = QueryBuilderTools.ConvertJTokenToString(column.Value, timeZone);
                 string columnLiteral = $"{column.Key} = {convertedValue},";

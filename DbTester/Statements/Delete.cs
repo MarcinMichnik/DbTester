@@ -18,7 +18,7 @@ namespace QueryBuilder.Statements
                 string whereClauseLiterals = SerializeWhereClauses(timeZone);
                 sb.Append($" WHERE {whereClauseLiterals}");
             }
-            sb.Append(";");
+            sb.Append(';');
             return sb.ToString();
         }
     }

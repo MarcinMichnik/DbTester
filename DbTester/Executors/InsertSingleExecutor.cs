@@ -1,4 +1,5 @@
 ﻿using System.Data.SqlClient;
+using DbTester.DataTypes;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
 
@@ -23,12 +24,15 @@ namespace DbTester.Executors
             Insert insertQuery = new(_tableName);
 
             JObject first = (JObject)sourceArray.First();
+            List<KeyValuePair<string, JToken>> columns = new();
             foreach (JProperty prop in first.Properties())
             {
                 string propName = prop.Name;
                 JToken val = prop.Value;
-                insertQuery.AddColumn(propName, val);
+                columns.Add(new KeyValuePair<string, JToken>(propName, val));
             }
+            Row row = new(columns);
+            insertQuery.AddRow(row);
             SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection);
 
             DateTime before = DateTime.Now;

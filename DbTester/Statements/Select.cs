@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Text;
 using QueryBuilder.Statements;
+using DbTester.DataTypes;
 
 namespace DbTester.Statements
 {
@@ -14,19 +15,20 @@ namespace DbTester.Statements
             _tableName = tableName;
             _selectAll = selectAllFields;
             WhereClauses = new();
-            Columns = new();
+            Rows = new();
         }
 
         public void AddColumn(string columnName)
         {
-            if (Columns is null)
+            Rows ??= new();
+
+            List<KeyValuePair<string, JToken>> columns = new()
             {
-                throw new Exception(
-                    "Cannot serialize update columns because Columns property is null!");
-            }
-                
-            // value does not matter
-            Columns.Add(columnName, 0);
+                // value does not matter
+                new KeyValuePair<string, JToken>(columnName, 0)
+            };
+            Row row = new(columns);
+            Rows.Add(row);
         }
 
         public override string ToString()
@@ -49,13 +51,12 @@ namespace DbTester.Statements
         {
             if (_selectAll)
                 return "*";
-            if (Columns is null)
-                throw new Exception(
-                    "Cannot serialize update columns because Columns property is null!");
 
             StringBuilder columns = new();
 
-            foreach (KeyValuePair<string, JToken> column in Columns)
+            Rows ??= new();
+            Row first = Rows.First();
+            foreach (KeyValuePair<string, JToken> column in first.Columns)
             {
                 string columnLiteral = $"{column.Key},";
                 columns.AppendLine(columnLiteral);

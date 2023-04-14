@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using DbTester.DataTypes;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.DataTypes;
 
@@ -12,26 +13,11 @@ namespace QueryBuilder.Statements
 
         // By default where clauses are not available; To be created in constructor
         protected Dictionary<string, KeyValuePair<string, JToken>>? WhereClauses { get; set; } = null;
+        public List<Row> Rows { get; set; } = new();
 
-        // By default column list is not available; To be created in constructor
-        protected Dictionary<string, JToken>? Columns { get; set; } = null;
-
-        public void AddColumn(string name, JToken value)
+        public void AddRow(Row row)
         {
-            if (Columns is null)
-                throw new Exception("Cannot add column because Columns property is null!");
-
-            Columns.Add(name, value);
-        }
-
-        public void AddColumn(string name, SqlFunction function)
-        {
-            if (Columns is null)
-                throw new Exception("Cannot add column because Columns property is null!");
-
-            // Save function as JTokenType.String with a prefix
-            string functionLiteral = function.GetPrefixedLiteral();
-            Columns.Add(name, functionLiteral);
+            Rows.Add(row);
         }
 
         public void Where(string columnName, string arithmeticSign, JToken value)

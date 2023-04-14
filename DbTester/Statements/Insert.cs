@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using DbTester.DataTypes;
 using Newtonsoft.Json.Linq;
 
 namespace QueryBuilder.Statements
@@ -8,18 +9,23 @@ namespace QueryBuilder.Statements
         public Insert(string tableName)
         {
             this.tableName = tableName;
-            Columns = new();
+            Rows = new();
         }
 
         public Insert(string tableName, JToken token)
         {
             this.tableName = tableName;
-            Columns = new();
+            Rows = new();
             JObject tokenObject = (JObject)token;
+
+            List<KeyValuePair<string, JToken>> columns = new();
             foreach (JProperty prop in tokenObject.Properties())
             {
-                AddColumn(prop.Name, prop.Value);
+                KeyValuePair<string, JToken> pair = new(prop.Name, prop.Value);
+                columns.Add(pair);
             }
+            Row row = new(columns);
+            Rows.Add(row);
         }
 
         public string ToString(TimeZoneInfo timeZone)
@@ -36,12 +42,10 @@ namespace QueryBuilder.Statements
 
         private string SerializeColumns()
         {
-            if (Columns == null)
-                throw new Exception("Cannot get update columns because Columns property is null!");
-
             StringBuilder columnStringBuilder = new();
-
-            foreach (KeyValuePair<string, JToken> column in Columns)
+            Rows ??= new();
+            Row first = Rows.First(); // Insert always has one element
+            foreach (KeyValuePair<string, JToken> column in first.Columns)
             {
                 string columnLiteral = $"{column.Key},";
                 columnStringBuilder.AppendLine(columnLiteral);
@@ -61,12 +65,10 @@ namespace QueryBuilder.Statements
 
         private string SerializeValues(TimeZoneInfo timeZone)
         {
-            if (Columns == null)
-                throw new Exception("Cannot get update values because Columns property is null!");
-
             StringBuilder columnStringBuilder = new();
-
-            foreach (KeyValuePair<string, JToken> column in Columns)
+            Rows ??= new();
+            Row first = Rows.First(); // Insert always has one element
+            foreach (KeyValuePair<string, JToken> column in first.Columns)
             {
                 string convertedValue = QueryBuilderTools.ConvertJTokenToString(column.Value, timeZone);
                 string columnLiteral = $"{convertedValue},";

@@ -1,4 +1,7 @@
-﻿using QueryBuilder.Statements;
+﻿using DbTester.DataTypes;
+using Newtonsoft.Json.Linq;
+using QueryBuilder.DataTypes;
+using QueryBuilder.Statements;
 
 namespace QueryBuilderTest.StatementTests
 {
@@ -48,10 +51,15 @@ namespace QueryBuilderTest.StatementTests
         private Update GetUpdateWithOnePrimaryKey()
         {
             Update query = new(TableName);
-            query.AddColumn("NAME", "HANNAH");
-            query.AddColumn("SAVINGS", 12.1);
-            query.AddColumn("MODIFIED_AT", CurrentTimestampCall);
-            query.AddColumn("MODIFIED_BY", ModifiedBy);
+
+            List<KeyValuePair<string, JToken>> columns = new();
+            columns.Add(new KeyValuePair<string, JToken>("NAME", "HANNAH"));
+            columns.Add(new KeyValuePair<string, JToken>("SAVINGS", 12.1));
+            string timestampLiteral = CurrentTimestampCall.GetPrefixedLiteral();
+            columns.Add(new KeyValuePair<string, JToken>("MODIFIED_AT", timestampLiteral));
+            columns.Add(new KeyValuePair<string, JToken>("MODIFIED_BY", ModifiedBy));
+            Row row = new(columns);
+            query.AddRow(row);
 
             query.Where("ID", "=", 1);
 
