@@ -26,6 +26,12 @@ namespace DbTester
             UpdateAllExecutor updateAllExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(updateAllExecutor);
 
+            MergeSingleExecutor mergeSingleExecutor = new(simulation);
+            simulation.SqlStatementExecutors.Add(mergeSingleExecutor);
+
+            MergeAllExecutor mergeAllExecutor = new(simulation);
+            simulation.SqlStatementExecutors.Add(mergeAllExecutor);
+
             SelectSingleExecutor selectSingleExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(selectSingleExecutor);
 

@@ -125,7 +125,8 @@ namespace DbTester
             };
             result["Merge"] = new JObject()
             {
-                { "MERGE", GetSubObject() }
+                { "MERGE_SINGLE", GetSubObject() },
+                { "MERGE_ALL", GetSubObject() }
             };
 
             return result;

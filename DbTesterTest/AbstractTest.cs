@@ -17,7 +17,7 @@ namespace QueryBuilderTest
         {
             Insert query = new(TableName);
             List<KeyValuePair<string, JToken>> columns = new();
-            SqlFunction func = new SqlFunction("SEQ.NEXT_VAL");
+            SqlFunction func = new("SEQ.NEXT_VAL");
             string funcLiteral = func.GetPrefixedLiteral();
             columns.Add(new KeyValuePair<string, JToken>("MASTER_ID", funcLiteral));
             columns.Add(new KeyValuePair<string, JToken>("ID", id));

@@ -9,7 +9,7 @@ namespace DbTesterTest.StatementTests
         [Test]
         public void TestCreateTableFromJarray()
         {
-            var actual = GetCreateTableQuery(TableName);
+            string actual = GetCreateTableQuery(TableName);
 
             string expected = @$"CREATE TABLE {TableName} (
                                     ID INT,
@@ -28,7 +28,7 @@ namespace DbTesterTest.StatementTests
 
         private string GetCreateTableQuery(string tableName)
         {
-            var arr = new JArray()
+            JArray arr = new()
             { 
                 new JObject() 
                 {
@@ -40,7 +40,7 @@ namespace DbTesterTest.StatementTests
                     { "MODIFIED_BY", "source" }
                 }
             };
-            var ct = new CreateTable(tableName, arr);
+            CreateTable ct = new(tableName, arr);
             return ct.ToString();
         }
     }
