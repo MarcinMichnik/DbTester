@@ -1,0 +1,62 @@
+{
+  "Status": "Success",
+  "TestCount": 11,
+  "SuccessfulTests": 11,
+  "FailedTests": 0,
+  "ObjectCount": 32,
+  "JobDuration": 63,
+  "Create": {
+    "INSERT_ALL": {
+      "ExecutionTime": 9.212599999999998,
+      "Errors": []
+    },
+    "INSERT_SINGLE": {
+      "ExecutionTime": 0.2969,
+      "Errors": []
+    }
+  },
+  "Read": {
+    "SELECT_SINGLE": {
+      "ExecutionTime": 32.8625,
+      "Errors": []
+    },
+    "SELECT_ALL": {
+      "ExecutionTime": 1.5487,
+      "Errors": []
+    }
+  },
+  "Update": {
+    "UPDATE_SINGLE": {
+      "ExecutionTime": 2.4413,
+      "Errors": []
+    },
+    "UPDATE_ALL": {
+      "ExecutionTime": 1.2557,
+      "Errors": []
+    }
+  },
+  "Delete": {
+    "DELETE_SINGLE": {
+      "ExecutionTime": 0.9105,
+      "Errors": []
+    },
+    "DELETE_ALL": {
+      "ExecutionTime": 0.5136,
+      "Errors": []
+    },
+    "TRUNCATE": {
+      "ExecutionTime": 0.3586,
+      "Errors": []
+    }
+  },
+  "Merge": {
+    "MERGE_SINGLE": {
+      "ExecutionTime": 4.8284,
+      "Errors": []
+    },
+    "MERGE_ALL": {
+      "ExecutionTime": 8.9347,
+      "Errors": []
+    }
+  }
+}

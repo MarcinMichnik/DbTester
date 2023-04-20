@@ -48,8 +48,7 @@ namespace DbTester.Executors
             SqlDataReader reader = selectCommand.ExecuteReader();
             while (reader.Read())
             {
-                string row = ReadSingleRow(reader);
-                Console.WriteLine(row); // FIXME - do not log here
+                ReadSingleRow(reader); // no need to log row
             }
             reader.Close();
             result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).TotalMilliseconds;
