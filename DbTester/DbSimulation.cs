@@ -36,7 +36,6 @@ namespace DbTester
             result["ObjectCount"] = sourceArray.Count;
 
             Connection.Open();
-            CreateOrReplaceTable(sourceArray);
             PerformTests(result, sourceArray);
             DropTable();
             Connection.Close();
@@ -76,21 +75,6 @@ namespace DbTester
             DropTable dropTableQuery = new(TableName);
             SqlCommand dropTableCommand = new(dropTableQuery.ToString(), Connection);
             dropTableCommand.ExecuteNonQuery();
-        }
-
-        private void CreateOrReplaceTable(JArray sourceArray)
-        {
-            CreateTable createTableQuery = new(TableName, sourceArray);
-            SqlCommand createTableCommand = new(createTableQuery.ToString(), Connection);
-            try
-            {
-                createTableCommand.ExecuteNonQuery();
-            }
-            catch
-            {
-                DropTable();
-                createTableCommand.ExecuteNonQuery();
-            }
         }
 
         private static JObject GetResultTemplate()

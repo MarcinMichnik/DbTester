@@ -33,11 +33,38 @@ namespace DbTester.Executors
             }
             Row row = new(columns);
             insertQuery.AddRow(row);
-            SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection);
 
-            DateTime before = DateTime.Now;
-            insertCommand.ExecuteNonQuery();
-            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).TotalMilliseconds;
+            double totalTimeTaken = 0;
+            for (int i = 0; i < _executeTimesN; i++)
+            {
+                double timeTaken = 0;
+                using (SqlTransaction transaction = _connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Create and configure the command
+                        using (SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection, transaction))
+                        {
+                            // Measure the time taken to execute the command
+                            DateTime before = DateTime.Now;
+                            insertCommand.ExecuteNonQuery();
+                            timeTaken = (DateTime.Now - before).TotalMilliseconds;
+
+                            // Roll back the transaction, so the changes are not committed
+                            transaction.Rollback();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions and roll back the transaction if needed
+                        Console.WriteLine($"Error: {ex.Message}");
+                        transaction.Rollback();
+                    }
+                }
+                totalTimeTaken += timeTaken;
+            }
+
+            result[operationType][statement]["ExecutionTime"] = Math.Round(totalTimeTaken / _executeTimesN, 2);
         }
     }
 }

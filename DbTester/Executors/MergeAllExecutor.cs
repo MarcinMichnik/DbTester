@@ -1,6 +1,7 @@
 ﻿using DbTester.DataTypes;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
+using QueryBuilder.Statements;
 using System.Data.SqlClient;
 
 namespace DbTester.Executors
@@ -36,11 +37,37 @@ namespace DbTester.Executors
                 mergeQuery.AddRow(row);
             }
 
-            SqlCommand mergeCommand = new(mergeQuery.ToString(TimeZoneInfo.Local), _connection);
+            double totalTimeTaken = 0;
+            for (int i = 0; i < _executeTimesN; i++)
+            {
+                double timeTaken = 0;
+                using (SqlTransaction transaction = _connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Create and configure the command
+                        using (SqlCommand mergeCommand = new(mergeQuery.ToString(TimeZoneInfo.Local), _connection, transaction))
+                        {
+                            // Measure the time taken to execute the command
+                            DateTime before = DateTime.Now;
+                            mergeCommand.ExecuteNonQuery();
+                            timeTaken = (DateTime.Now - before).TotalMilliseconds;
 
-            DateTime before = DateTime.Now;
-            mergeCommand.ExecuteNonQuery();
-            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).TotalMilliseconds;
+                            // Roll back the transaction, so the changes are not committed
+                            transaction.Rollback();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions and roll back the transaction if needed
+                        Console.WriteLine($"Error: {ex.Message}");
+                        transaction.Rollback();
+                    }
+                }
+                totalTimeTaken += timeTaken;
+            }
+
+            result[operationType][statement]["ExecutionTime"] = Math.Round(totalTimeTaken / _executeTimesN, 2);
         }
     }
 }

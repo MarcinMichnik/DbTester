@@ -21,26 +21,49 @@ namespace DbTester.Executors
 
         private void InsertEach(JObject result, JArray sourceArray, string operationType, string statement)
         {
-            double totalTime = 0d;
-            foreach (JObject obj in sourceArray.Children<JObject>())
+            double totalTimeTaken = 0;
+            for (int i = 0; i < _executeTimesN; i++)
             {
-                Insert insertQuery = new(_tableName);
-                List<KeyValuePair<string, JToken>> columns = new();
-                foreach (JProperty prop in obj.Properties())
+                double timeTaken = 0;
+                using (SqlTransaction transaction = _connection.BeginTransaction())
                 {
-                    string propName = prop.Name;
-                    JToken val = prop.Value;
-                    columns.Add(new KeyValuePair<string, JToken>(propName, val));
-                }
-                Row row = new(columns);
-                insertQuery.AddRow(row);
-                SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection);
+                    try
+                    {
+                        double localTotalTime = 0d;
+                        foreach (JObject obj in sourceArray.Children<JObject>())
+                        {
+                            Insert insertQuery = new(_tableName);
+                            List<KeyValuePair<string, JToken>> columns = new();
+                            foreach (JProperty prop in obj.Properties())
+                            {
+                                string propName = prop.Name;
+                                JToken val = prop.Value;
+                                columns.Add(new KeyValuePair<string, JToken>(propName, val));
+                            }
+                            Row row = new(columns);
+                            insertQuery.AddRow(row);
+                            SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
 
-                DateTime before = DateTime.Now;
-                insertCommand.ExecuteNonQuery();
-                totalTime += (DateTime.Now - before).TotalMilliseconds;
+                            DateTime before = DateTime.Now;
+                            insertCommand.ExecuteNonQuery();
+                            localTotalTime += (DateTime.Now - before).TotalMilliseconds;
+                        }
+                        timeTaken = localTotalTime;
+
+                        // Roll back the transaction, so the changes are not committed
+                        transaction.Rollback();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions and roll back the transaction if needed
+                        Console.WriteLine($"Error: {ex.Message}");
+                        transaction.Rollback();
+                    }
+                }
+                totalTimeTaken += timeTaken;
             }
-            result[operationType][statement]["ExecutionTime"] = totalTime;
+
+            result[operationType][statement]["ExecutionTime"] = Math.Round(totalTimeTaken / _executeTimesN, 2);
         }
     }
 }

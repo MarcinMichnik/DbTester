@@ -17,6 +17,9 @@ namespace DbTester
         private void AddExecutorsTo(DbSimulation simulation)
         {
             // Executor ordering matters
+            CreateOrReplaceTableExecutor createOrReplaceTableExecutor = new(simulation);
+            simulation.SqlStatementExecutors.Add(createOrReplaceTableExecutor);
+            
             InsertAllExecutor insertAllExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(insertAllExecutor);
 

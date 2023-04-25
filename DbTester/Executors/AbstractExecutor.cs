@@ -10,6 +10,7 @@ namespace DbTester.Executors
     {
         protected string _tableName;
         protected SqlConnection _connection;
+        protected uint _executeTimesN = 1024; // Will execute executor n times and make an average val
 
         public AbstractExecutor(DbSimulation simulation)
         {
