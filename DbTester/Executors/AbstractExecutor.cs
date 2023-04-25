@@ -10,7 +10,7 @@ namespace DbTester.Executors
     {
         protected string _tableName;
         protected SqlConnection _connection;
-        protected uint _executeTimesN = 1024; // Will execute executor n times and make an average val
+        protected uint _executeTimesN = 64; // Will execute executor n times and make an average val
 
         public AbstractExecutor(DbSimulation simulation)
         {
@@ -43,16 +43,42 @@ namespace DbTester.Executors
 
         protected void SelectAndRead(JObject result, Select selectQuery, string operationType, string statement)
         {
-            SqlCommand selectCommand = new(selectQuery.ToString(), _connection);
-
-            DateTime before = DateTime.Now;
-            SqlDataReader reader = selectCommand.ExecuteReader();
-            while (reader.Read())
+            double totalTimeTaken = 0;
+            for (int i = 0; i < _executeTimesN; i++)
             {
-                ReadSingleRow(reader); // no need to log row
+                double timeTaken = 0;
+                using (SqlTransaction transaction = _connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Create and configure the command
+                        using (SqlCommand selectCommand = new(selectQuery.ToString(TimeZoneInfo.Local), _connection, transaction))
+                        {
+                            // Measure the time taken to execute the command
+                            DateTime before = DateTime.Now;
+                            SqlDataReader reader = selectCommand.ExecuteReader();
+                            while (reader.Read())
+                            {
+                                ReadSingleRow(reader); // no need to log row
+                            }
+                            reader.Close();
+                            timeTaken = (DateTime.Now - before).TotalMilliseconds;
+
+                            // Roll back the transaction, so the changes are not committed
+                            transaction.Rollback();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions and roll back the transaction if needed
+                        Console.WriteLine($"Error: {ex.Message}");
+                        transaction.Rollback();
+                    }
+                }
+                totalTimeTaken += timeTaken;
             }
-            reader.Close();
-            result[operationType][statement]["ExecutionTime"] = (DateTime.Now - before).TotalMilliseconds;
+
+            result[operationType][statement]["ExecutionTime"] = Math.Round(totalTimeTaken / _executeTimesN, 2);
         }
 
         protected string ReadSingleRow(IDataRecord dataRecord)

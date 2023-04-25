@@ -4,58 +4,58 @@
   "SuccessfulTests": 11,
   "FailedTests": 0,
   "ObjectCount": 2,
-  "JobDuration": 44,
+  "JobDuration": 1,
   "Create": {
     "INSERT_ALL": {
-      "ExecutionTime": 0.32,
+      "ExecutionTime": 0.34,
       "Errors": []
     },
     "INSERT_SINGLE": {
-      "ExecutionTime": 0.12,
+      "ExecutionTime": 0.24,
       "Errors": []
     }
   },
   "Read": {
     "SELECT_SINGLE": {
-      "ExecutionTime": 34.3613,
+      "ExecutionTime": 0.51,
       "Errors": []
     },
     "SELECT_ALL": {
-      "ExecutionTime": 1.4248,
+      "ExecutionTime": 0.09,
       "Errors": []
     }
   },
   "Update": {
     "UPDATE_SINGLE": {
-      "ExecutionTime": 1.7237,
+      "ExecutionTime": 0.09,
       "Errors": []
     },
     "UPDATE_ALL": {
-      "ExecutionTime": 1.478,
+      "ExecutionTime": 0.13,
       "Errors": []
     }
   },
   "Delete": {
     "DELETE_SINGLE": {
-      "ExecutionTime": 0.07,
+      "ExecutionTime": 0.1,
       "Errors": []
     },
     "DELETE_ALL": {
-      "ExecutionTime": 0.06,
+      "ExecutionTime": 0.08,
       "Errors": []
     },
     "TRUNCATE": {
-      "ExecutionTime": 0.24,
+      "ExecutionTime": 0.21,
       "Errors": []
     }
   },
   "Merge": {
     "MERGE_SINGLE": {
-      "ExecutionTime": 5.3126,
+      "ExecutionTime": 0.17,
       "Errors": []
     },
     "MERGE_ALL": {
-      "ExecutionTime": 0.51,
+      "ExecutionTime": 0.42,
       "Errors": []
     }
   }
