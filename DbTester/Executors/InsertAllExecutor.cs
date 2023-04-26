@@ -21,49 +21,45 @@ namespace DbTester.Executors
 
         private void InsertEach(JObject result, JArray sourceArray, string operationType, string statement)
         {
-            double totalTimeTaken = 0;
+            List<double> timeList = new();
             for (int i = 0; i < _executeTimesN; i++)
             {
-                double timeTaken = 0;
-                using (SqlTransaction transaction = _connection.BeginTransaction())
+                using SqlTransaction transaction = _connection.BeginTransaction();
+                try
                 {
-                    try
+                    double localTotalTime = 0d;
+                    foreach (JObject obj in sourceArray.Children<JObject>())
                     {
-                        double localTotalTime = 0d;
-                        foreach (JObject obj in sourceArray.Children<JObject>())
+                        Insert insertQuery = new(_tableName);
+                        List<KeyValuePair<string, JToken>> columns = new();
+                        foreach (JProperty prop in obj.Properties())
                         {
-                            Insert insertQuery = new(_tableName);
-                            List<KeyValuePair<string, JToken>> columns = new();
-                            foreach (JProperty prop in obj.Properties())
-                            {
-                                string propName = prop.Name;
-                                JToken val = prop.Value;
-                                columns.Add(new KeyValuePair<string, JToken>(propName, val));
-                            }
-                            Row row = new(columns);
-                            insertQuery.AddRow(row);
-                            SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
-
-                            DateTime before = DateTime.Now;
-                            insertCommand.ExecuteNonQuery();
-                            localTotalTime += (DateTime.Now - before).TotalMilliseconds;
+                            string propName = prop.Name;
+                            JToken val = prop.Value;
+                            columns.Add(new KeyValuePair<string, JToken>(propName, val));
                         }
-                        timeTaken = localTotalTime;
+                        Row row = new(columns);
+                        insertQuery.AddRow(row);
+                        SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
 
-                        // Roll back the transaction, so the changes are not committed
-                        transaction.Rollback();
+                        DateTime before = DateTime.Now;
+                        insertCommand.ExecuteNonQuery();
+                        localTotalTime += (DateTime.Now - before).TotalMilliseconds;
                     }
-                    catch (Exception ex)
-                    {
-                        // Handle exceptions and roll back the transaction if needed
-                        Console.WriteLine($"Error: {ex.Message}");
-                        transaction.Rollback();
-                    }
+                    timeList.Add(localTotalTime);
+
+                    // Roll back the transaction, so the changes are not committed
+                    transaction.Rollback();
                 }
-                totalTimeTaken += timeTaken;
+                catch (Exception ex)
+                {
+                    // Handle exceptions and roll back the transaction if needed
+                    Console.WriteLine($"Error: {ex.Message}");
+                    transaction.Rollback();
+                }
             }
 
-            result[operationType][statement]["ExecutionTime"] = Math.Round(totalTimeTaken / _executeTimesN, 2);
+            CalculateTimeValues(result, operationType, statement, timeList);
         }
     }
 }

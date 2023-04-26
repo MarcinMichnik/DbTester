@@ -4,58 +4,69 @@
   "SuccessfulTests": 11,
   "FailedTests": 0,
   "ObjectCount": 2,
-  "JobDuration": 1,
+  "JobDuration": 2,
   "Create": {
     "INSERT_ALL": {
-      "ExecutionTime": 0.34,
+      "ExecutionTime": 0.36,
+      "StandardDeviation": 0.66,
       "Errors": []
     },
     "INSERT_SINGLE": {
-      "ExecutionTime": 0.24,
+      "ExecutionTime": 0.2,
+      "StandardDeviation": 0.05,
       "Errors": []
     }
   },
   "Read": {
     "SELECT_SINGLE": {
-      "ExecutionTime": 0.51,
+      "ExecutionTime": 0.53,
+      "StandardDeviation": 3.55,
       "Errors": []
     },
     "SELECT_ALL": {
-      "ExecutionTime": 0.09,
+      "ExecutionTime": 0.08,
+      "StandardDeviation": 0.05,
       "Errors": []
     }
   },
   "Update": {
     "UPDATE_SINGLE": {
-      "ExecutionTime": 0.09,
+      "ExecutionTime": 0.1,
+      "StandardDeviation": 0.19,
       "Errors": []
     },
     "UPDATE_ALL": {
-      "ExecutionTime": 0.13,
+      "ExecutionTime": 0.1,
+      "StandardDeviation": 0.16,
       "Errors": []
     }
   },
   "Delete": {
     "DELETE_SINGLE": {
-      "ExecutionTime": 0.1,
+      "ExecutionTime": 0.09,
+      "StandardDeviation": 0.08,
       "Errors": []
     },
     "DELETE_ALL": {
-      "ExecutionTime": 0.08,
+      "ExecutionTime": 0.1,
+      "StandardDeviation": 0.06,
       "Errors": []
     },
     "TRUNCATE": {
-      "ExecutionTime": 0.21,
+      "ExecutionTime": 0.25,
+      "StandardDeviation": 0.09,
       "Errors": []
     }
   },
   "Merge": {
     "MERGE_SINGLE": {
-      "ExecutionTime": 0.17,
+      "ExecutionTime": 0.21,
+      "StandardDeviation": 0.61,
       "Errors": []
     },
     "MERGE_ALL": {
-      "ExecutionTime": 0.42,
+      "ExecutionTime": 0.55,
+      "StandardDeviation": 0.9,
       "Errors": []
     }
   }

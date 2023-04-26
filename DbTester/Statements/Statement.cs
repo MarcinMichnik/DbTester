@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using DbTester.DataTypes;
 using Newtonsoft.Json.Linq;
-using QueryBuilder.DataTypes;
 
 namespace QueryBuilder.Statements
 {

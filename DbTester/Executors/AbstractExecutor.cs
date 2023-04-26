@@ -11,6 +11,8 @@ namespace DbTester.Executors
         protected string _tableName;
         protected SqlConnection _connection;
         protected uint _executeTimesN = 64; // Will execute executor n times and make an average val
+        protected readonly string _executionTimeLiteral = "ExecutionTime";
+        protected readonly string _standardDeviationLiteral = "StandardDeviation";
 
         public AbstractExecutor(DbSimulation simulation)
         {
@@ -43,42 +45,51 @@ namespace DbTester.Executors
 
         protected void SelectAndRead(JObject result, Select selectQuery, string operationType, string statement)
         {
-            double totalTimeTaken = 0;
+            List<double> timeList = new();
             for (int i = 0; i < _executeTimesN; i++)
             {
-                double timeTaken = 0;
-                using (SqlTransaction transaction = _connection.BeginTransaction())
+                using SqlTransaction transaction = _connection.BeginTransaction();
+                try
                 {
-                    try
+                    // Create and configure the command
+                    using SqlCommand selectCommand = new(selectQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    // Measure the time taken to execute the command
+                    DateTime before = DateTime.Now;
+                    SqlDataReader reader = selectCommand.ExecuteReader();
+                    while (reader.Read())
                     {
-                        // Create and configure the command
-                        using (SqlCommand selectCommand = new(selectQuery.ToString(TimeZoneInfo.Local), _connection, transaction))
-                        {
-                            // Measure the time taken to execute the command
-                            DateTime before = DateTime.Now;
-                            SqlDataReader reader = selectCommand.ExecuteReader();
-                            while (reader.Read())
-                            {
-                                ReadSingleRow(reader); // no need to log row
-                            }
-                            reader.Close();
-                            timeTaken = (DateTime.Now - before).TotalMilliseconds;
+                        ReadSingleRow(reader); // no need to log row
+                    }
+                    reader.Close();
+                    TimeSpan timeTaken = DateTime.Now - before;
+                    timeList.Add(timeTaken.TotalMilliseconds);
 
-                            // Roll back the transaction, so the changes are not committed
-                            transaction.Rollback();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Handle exceptions and roll back the transaction if needed
-                        Console.WriteLine($"Error: {ex.Message}");
-                        transaction.Rollback();
-                    }
+                    // Roll back the transaction, so the changes are not committed
+                    transaction.Rollback();
                 }
-                totalTimeTaken += timeTaken;
+                catch (Exception ex)
+                {
+                    // Handle exceptions and roll back the transaction if needed
+                    Console.WriteLine($"Error: {ex.Message}");
+                    transaction.Rollback();
+                }
             }
 
-            result[operationType][statement]["ExecutionTime"] = Math.Round(totalTimeTaken / _executeTimesN, 2);
+            CalculateTimeValues(result, operationType, statement, timeList);
+        }
+
+        protected void CalculateTimeValues(JObject result, string operationType, string statement, List<double> timeList)
+        {
+            double average = timeList.Sum() / _executeTimesN;
+            double sumSquaredDifferences = 0;
+            foreach (double time in timeList)
+            {
+                sumSquaredDifferences += Math.Pow(time - average, 2);
+            }
+            double standardDeviation = Math.Sqrt(sumSquaredDifferences / _executeTimesN);
+
+            result[operationType][statement][_executionTimeLiteral] = Math.Round(average, 2);
+            result[operationType][statement][_standardDeviationLiteral] = Math.Round(standardDeviation, 2);
         }
 
         protected string ReadSingleRow(IDataRecord dataRecord)

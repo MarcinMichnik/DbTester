@@ -1,5 +1,4 @@
 ﻿using System.Data.SqlClient;
-using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
 
@@ -22,38 +21,30 @@ namespace DbTester.Executors
         // Does not commit deletion; Will execute n times and make average
         private void DeleteAll(JObject result, JArray sourceArray, string operationType, string statement)
         {
-            double totalTimeTaken = 0;
+            List<double> timeList = new();
             Delete deleteQuery = new(_tableName);
             for (int i = 0; i < _executeTimesN; i++)
             {
-                double timeTaken = 0;
-                using (SqlTransaction transaction = _connection.BeginTransaction())
+                using SqlTransaction transaction = _connection.BeginTransaction();
+                try
                 {
-                    try
-                    {
-                        // Create and configure the command
-                        using (SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local), _connection, transaction))
-                        {
-                            // Measure the time taken to execute the command
-                            DateTime before = DateTime.Now;
-                            deleteCommand.ExecuteNonQuery();
-                            timeTaken = (DateTime.Now - before).TotalMilliseconds;
+                    using SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    DateTime before = DateTime.Now;
+                    deleteCommand.ExecuteNonQuery();
+                    TimeSpan timeTaken = DateTime.Now - before;
+                    timeList.Add(timeTaken.TotalMilliseconds);
 
-                            // Roll back the transaction, so the changes are not committed
-                            transaction.Rollback();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Handle exceptions and roll back the transaction if needed
-                        Console.WriteLine($"Error: {ex.Message}");
-                        transaction.Rollback();
-                    }
+                    // Roll back the transaction, so the changes are not committed
+                    transaction.Rollback();
                 }
-                totalTimeTaken += timeTaken;
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    transaction.Rollback();
+                }
             }
 
-            result[operationType][statement]["ExecutionTime"] = Math.Round(totalTimeTaken / _executeTimesN, 2);
+            CalculateTimeValues(result, operationType, statement, timeList);
         }
     }
 }

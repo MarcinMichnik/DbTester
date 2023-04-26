@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data.SqlClient;
 using DbTester.DataTypes;
 using DbTester.Statements;
 using Newtonsoft.Json.Linq;
-using QueryBuilder.Statements;
 
 namespace DbTester.Executors
 {
@@ -40,37 +34,29 @@ namespace DbTester.Executors
             Row row = new(columns);
             mergeQuery.AddRow(row);
 
-            double totalTimeTaken = 0;
+            List<double> timeList = new();
             for (int i = 0; i < _executeTimesN; i++)
             {
-                double timeTaken = 0;
-                using (SqlTransaction transaction = _connection.BeginTransaction())
+                using SqlTransaction transaction = _connection.BeginTransaction();
+                try
                 {
-                    try
-                    {
-                        // Create and configure the command
-                        using (SqlCommand mergeCommand = new(mergeQuery.ToString(TimeZoneInfo.Local), _connection, transaction))
-                        {
-                            // Measure the time taken to execute the command
-                            DateTime before = DateTime.Now;
-                            mergeCommand.ExecuteNonQuery();
-                            timeTaken = (DateTime.Now - before).TotalMilliseconds;
+                    using SqlCommand mergeCommand = new(mergeQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    DateTime before = DateTime.Now;
+                    mergeCommand.ExecuteNonQuery();
+                    TimeSpan timeTaken = DateTime.Now - before;
+                    timeList.Add(timeTaken.TotalMilliseconds);
 
-                            // Roll back the transaction, so the changes are not committed
-                            transaction.Rollback();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Handle exceptions and roll back the transaction if needed
-                        Console.WriteLine($"Error: {ex.Message}");
-                        transaction.Rollback();
-                    }
+                    // Roll back the transaction, so the changes are not committed
+                    transaction.Rollback();
                 }
-                totalTimeTaken += timeTaken;
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    transaction.Rollback();
+                }
             }
 
-            result[operationType][statement]["ExecutionTime"] = Math.Round(totalTimeTaken / _executeTimesN, 2);
+            CalculateTimeValues(result, operationType, statement, timeList);
         }
     }
 }

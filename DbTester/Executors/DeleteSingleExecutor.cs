@@ -1,5 +1,4 @@
 ﻿using System.Data.SqlClient;
-using DbTester.Statements;
 using Newtonsoft.Json.Linq;
 using QueryBuilder.Statements;
 
@@ -21,40 +20,35 @@ namespace DbTester.Executors
 
         private void DeleteSingle(JObject result, JArray sourceArray, string operationType, string statement)
         {
-            double totalTimeTaken = 0;
             Delete deleteQuery = new(_tableName);
             JProperty idProp = (JProperty)sourceArray.First().First();
             deleteQuery.Where(idProp.Name, "=", idProp.Value);
+            List<double> timeList = new();
             for (int i = 0; i < _executeTimesN; i++)
             {
-                double timeTaken = 0;
-                using (SqlTransaction transaction = _connection.BeginTransaction())
+                using SqlTransaction transaction = _connection.BeginTransaction();
+                try
                 {
-                    try
-                    {
-                        // Create and configure the command
-                        using (SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local), _connection, transaction))
-                        {
-                            // Measure the time taken to execute the command
-                            DateTime before = DateTime.Now;
-                            deleteCommand.ExecuteNonQuery();
-                            timeTaken = (DateTime.Now - before).TotalMilliseconds;
+                    // Create and configure the command
+                    using SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    // Measure the time taken to execute the command
+                    DateTime before = DateTime.Now;
+                    deleteCommand.ExecuteNonQuery();
+                    TimeSpan timeTaken = DateTime.Now - before;
+                    timeList.Add(timeTaken.TotalMilliseconds);
 
-                            // Roll back the transaction, so the changes are not committed
-                            transaction.Rollback();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Handle exceptions and roll back the transaction if needed
-                        Console.WriteLine($"Error: {ex.Message}");
-                        transaction.Rollback();
-                    }
+                    // Roll back the transaction, so the changes are not committed
+                    transaction.Rollback();
                 }
-                totalTimeTaken += timeTaken;
+                catch (Exception ex)
+                {
+                    // Handle exceptions and roll back the transaction if needed
+                    Console.WriteLine($"Error: {ex.Message}");
+                    transaction.Rollback();
+                }
             }
 
-            result[operationType][statement]["ExecutionTime"] = Math.Round(totalTimeTaken / _executeTimesN, 2);
+            CalculateTimeValues(result, operationType, statement, timeList);
         }
     }
 }

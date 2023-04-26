@@ -120,6 +120,7 @@ namespace DbTester
         {
             return new JObject() {
                     { "ExecutionTime", 0 },
+                    { "StandardDeviation", 0 },
                     { "Errors", new JArray() } };
         }
     }
