@@ -10,8 +10,8 @@ namespace DbTester.Executors
     {
         protected string _tableName;
         protected SqlConnection _connection;
-        protected uint _executeTimesN = 64; // Will execute executor n times and make an average val
-        protected readonly string _executionTimeLiteral = "ExecutionTime";
+        protected uint _executeTimesN = 512; // Will execute executor n times and make an average val
+        protected readonly string _executionTimeLiteral = "AverageExecutionTime";
         protected readonly string _standardDeviationLiteral = "StandardDeviation";
 
         public AbstractExecutor(DbSimulation simulation)

@@ -4,69 +4,69 @@
   "SuccessfulTests": 11,
   "FailedTests": 0,
   "ObjectCount": 2,
-  "JobDuration": 2,
+  "JobDuration": 1.7,
   "Create": {
     "INSERT_ALL": {
-      "ExecutionTime": 0.36,
-      "StandardDeviation": 0.66,
+      "AverageExecutionTime": 0.32,
+      "StandardDeviation": 0.13,
       "Errors": []
     },
     "INSERT_SINGLE": {
-      "ExecutionTime": 0.2,
-      "StandardDeviation": 0.05,
+      "AverageExecutionTime": 0.13,
+      "StandardDeviation": 0.02,
       "Errors": []
     }
   },
   "Read": {
     "SELECT_SINGLE": {
-      "ExecutionTime": 0.53,
-      "StandardDeviation": 3.55,
+      "AverageExecutionTime": 0.14,
+      "StandardDeviation": 1.44,
       "Errors": []
     },
     "SELECT_ALL": {
-      "ExecutionTime": 0.08,
-      "StandardDeviation": 0.05,
+      "AverageExecutionTime": 0.06,
+      "StandardDeviation": 0.02,
       "Errors": []
     }
   },
   "Update": {
     "UPDATE_SINGLE": {
-      "ExecutionTime": 0.1,
-      "StandardDeviation": 0.19,
+      "AverageExecutionTime": 0.1,
+      "StandardDeviation": 0.13,
       "Errors": []
     },
     "UPDATE_ALL": {
-      "ExecutionTime": 0.1,
-      "StandardDeviation": 0.16,
+      "AverageExecutionTime": 0.08,
+      "StandardDeviation": 0.06,
       "Errors": []
     }
   },
   "Delete": {
     "DELETE_SINGLE": {
-      "ExecutionTime": 0.09,
-      "StandardDeviation": 0.08,
+      "AverageExecutionTime": 0.06,
+      "StandardDeviation": 0.03,
       "Errors": []
     },
     "DELETE_ALL": {
-      "ExecutionTime": 0.1,
-      "StandardDeviation": 0.06,
+      "AverageExecutionTime": 0.05,
+      "StandardDeviation": 0.02,
       "Errors": []
     },
     "TRUNCATE": {
-      "ExecutionTime": 0.25,
-      "StandardDeviation": 0.09,
+      "AverageExecutionTime": 0.18,
+      "StandardDeviation": 0.02,
       "Errors": []
     }
   },
   "Merge": {
     "MERGE_SINGLE": {
-      "ExecutionTime": 0.21,
-      "StandardDeviation": 0.61,
+      "AverageExecutionTime": 0.12,
+      "StandardDeviation": 0.21,
       "Errors": []
     },
     "MERGE_ALL": {
-      "ExecutionTime": 0.55,
-      "StandardDeviation": 0.9,
+      "AverageExecutionTime": 0.46,
+      "StandardDeviation": 0.48,
       "Errors": []
     }
   }

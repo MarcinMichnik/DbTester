@@ -15,6 +15,7 @@ namespace DbTester
         private string _filePath;
         private string _dbConnectionString;
         private string _guid;
+        private readonly string _executionTimeLiteral = "AverageExecutionTime";
 
         public DbSimulation(string filePath, string dbConnectionString)
         {
@@ -53,12 +54,13 @@ namespace DbTester
             SumUpTotalJobDuration(result);
         }
 
-        private static void SumUpTotalJobDuration(JObject result)
+        private void SumUpTotalJobDuration(JObject result)
         {
             IEnumerable<JToken> all = result.DescendantsAndSelf();
             IEnumerable<JProperty> allProps = all.OfType<JProperty>();
-            IEnumerable<JProperty> allTimes = allProps.Where(prop => prop.Name == "ExecutionTime");
-            result["JobDuration"] = allTimes.Sum(prop => (int)prop.Value);
+            IEnumerable<JProperty> allTimes = allProps.Where(prop => prop.Name == _executionTimeLiteral);
+            var timeSum = allTimes.Sum(prop => (double)prop.Value);
+            result["JobDuration"] = Math.Round(timeSum, 2);
         }
 
         private JArray ArrayFromSourceFile()
@@ -77,7 +79,7 @@ namespace DbTester
             dropTableCommand.ExecuteNonQuery();
         }
 
-        private static JObject GetResultTemplate()
+        private JObject GetResultTemplate()
         {
             JObject result = new();
             result["Status"] = "Success";
@@ -116,10 +118,10 @@ namespace DbTester
             return result;
         }
 
-        private static JObject GetSubObject()
+        private JObject GetSubObject()
         {
             return new JObject() {
-                    { "ExecutionTime", 0 },
+                    { _executionTimeLiteral, 0 },
                     { "StandardDeviation", 0 },
                     { "Errors", new JArray() } };
         }
