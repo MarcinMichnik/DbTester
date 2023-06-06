@@ -20,7 +20,8 @@ namespace DbTester.Commands
             });
         }
 
-        private void UpdateSingle(JObject result, JArray sourceArray, string operationType, string statement)
+        private void UpdateSingle(JObject result, JArray sourceArray,
+            string operationType, string statement)
         {
             Update updateQuery = new(_tableName);
             JProperty idProp = (JProperty)sourceArray.First().First();
@@ -42,7 +43,8 @@ namespace DbTester.Commands
                 try
                 {
                     // Create and configure the command
-                    using SqlCommand updateCommand = new(updateQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    using SqlCommand updateCommand = new(updateQuery.ToString(TimeZoneInfo.Local),
+                        _connection, transaction);
                     // Measure the time taken to execute the command
                     DateTime before = DateTime.Now;
                     updateCommand.ExecuteNonQuery();

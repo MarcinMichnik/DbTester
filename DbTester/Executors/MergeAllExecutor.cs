@@ -19,7 +19,8 @@ namespace DbTester.Executors
             });
         }
 
-        private void MergeAll(JObject result, JArray sourceArray, string operationType, string statement)
+        private void MergeAll(JObject result, JArray sourceArray,
+            string operationType, string statement)
         {
             Merge mergeQuery = new(_tableName);
 
@@ -43,7 +44,9 @@ namespace DbTester.Executors
                 try
                 {
                     // Create and configure the command
-                    using SqlCommand mergeCommand = new(mergeQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    using SqlCommand mergeCommand = new(
+                        mergeQuery.ToString(TimeZoneInfo.Local),
+                        _connection, transaction);
                     // Measure the time taken to execute the command
                     DateTime before = DateTime.Now;
                     mergeCommand.ExecuteNonQuery();

@@ -43,7 +43,8 @@ namespace DbTester.Executors
             result["FailedTests"] = (int)result["FailedTests"] + 1;
         }
 
-        protected void SelectAndRead(JObject result, Select selectQuery, string operationType, string statement)
+        protected void SelectAndRead(JObject result, Select selectQuery,
+            string operationType, string statement)
         {
             List<double> timeList = new();
             for (int i = 0; i < _executeTimesN; i++)
@@ -52,7 +53,8 @@ namespace DbTester.Executors
                 try
                 {
                     // Create and configure the command
-                    using SqlCommand selectCommand = new(selectQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    using SqlCommand selectCommand = new(selectQuery.ToString(TimeZoneInfo.Local),
+                        _connection, transaction);
                     // Measure the time taken to execute the command
                     DateTime before = DateTime.Now;
                     SqlDataReader reader = selectCommand.ExecuteReader();

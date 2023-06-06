@@ -19,7 +19,8 @@ namespace DbTester.Executors
         }
 
         // Does not commit deletion; Will execute n times and make average
-        private void DeleteAll(JObject result, JArray sourceArray, string operationType, string statement)
+        private void DeleteAll(JObject result, string operationType,
+            string statement)
         {
             List<double> timeList = new();
             Delete deleteQuery = new(_tableName);
@@ -28,7 +29,8 @@ namespace DbTester.Executors
                 using SqlTransaction transaction = _connection.BeginTransaction();
                 try
                 {
-                    using SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    using SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local),
+                        _connection, transaction);
                     DateTime before = DateTime.Now;
                     deleteCommand.ExecuteNonQuery();
                     TimeSpan timeTaken = DateTime.Now - before;

@@ -19,7 +19,8 @@ namespace DbTester.Executors
             });
         }
 
-        private void Truncate(JObject result, string operationType, string statement) 
+        private void Truncate(JObject result, string operationType,
+            string statement) 
         {
             Truncate truncateQuery = new(_tableName);
             List<double> timeList = new();
@@ -30,7 +31,9 @@ namespace DbTester.Executors
                     try
                     {
                         // Create and configure the command
-                        using SqlCommand truncateCommand = new(truncateQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                        using SqlCommand truncateCommand = new(
+                            truncateQuery.ToString(TimeZoneInfo.Local),
+                            _connection, transaction);
                         // Measure the time taken to execute the command
                         DateTime before = DateTime.Now;
                         truncateCommand.ExecuteNonQuery();

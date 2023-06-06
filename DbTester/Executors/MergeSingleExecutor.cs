@@ -19,7 +19,8 @@ namespace DbTester.Executors
             });
         }
 
-        private void MergeSingle(JObject result, JArray sourceArray, string operationType, string statement)
+        private void MergeSingle(JObject result, JArray sourceArray,
+            string operationType, string statement)
         {
             Merge mergeQuery = new(_tableName);
 
@@ -40,7 +41,9 @@ namespace DbTester.Executors
                 using SqlTransaction transaction = _connection.BeginTransaction();
                 try
                 {
-                    using SqlCommand mergeCommand = new(mergeQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    using SqlCommand mergeCommand = new(
+                        mergeQuery.ToString(TimeZoneInfo.Local),
+                        _connection, transaction);
                     DateTime before = DateTime.Now;
                     mergeCommand.ExecuteNonQuery();
                     TimeSpan timeTaken = DateTime.Now - before;

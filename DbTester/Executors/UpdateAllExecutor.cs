@@ -18,7 +18,8 @@ namespace DbTester.Executors
             });
         }
 
-        private void UpdateAll(JObject result, JArray sourceArray, string operationType, string statement)
+        private void UpdateAll(JObject result, JArray sourceArray,
+            string operationType, string statement)
         {
             Update updateQuery = new(_tableName);
             JObject first = (JObject)sourceArray.First();
@@ -39,7 +40,8 @@ namespace DbTester.Executors
                 try
                 {
                     // Create and configure the command
-                    using SqlCommand updateCommand = new(updateQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    using SqlCommand updateCommand = new(updateQuery.ToString(TimeZoneInfo.Local),
+                        _connection, transaction);
                     // Measure the time taken to execute the command
                     DateTime before = DateTime.Now;
                     updateCommand.ExecuteNonQuery();

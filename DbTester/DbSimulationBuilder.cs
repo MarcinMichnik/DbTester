@@ -50,7 +50,7 @@ namespace DbTester
             DeleteAllExecutor deleteAllExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(deleteAllExecutor);
 
-            TruncateExecutor truncateExecutor = new(simulation); // FIXME - will not delete anything
+            TruncateExecutor truncateExecutor = new(simulation);
             simulation.SqlStatementExecutors.Add(truncateExecutor);
         }
     }

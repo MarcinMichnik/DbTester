@@ -16,7 +16,8 @@ namespace DbTester.Executors
             });
         }
 
-        private void SelectAndReadSingle(JObject result, JArray sourceArray, string operationType, string statement)
+        private void SelectAndReadSingle(JObject result, JArray sourceArray,
+            string operationType, string statement)
         {
             Select selectQuery = new(_tableName, selectAllFields: true);
             JProperty id = (JProperty)sourceArray.First().First();

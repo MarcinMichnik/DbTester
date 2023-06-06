@@ -19,7 +19,8 @@ namespace DbTester.Executors
             });
         }
 
-        private void InsertEach(JObject result, JArray sourceArray, string operationType, string statement)
+        private void InsertEach(JObject result, JArray sourceArray, string operationType,
+            string statement)
         {
             List<double> timeList = new();
             for (int i = 0; i < _executeTimesN; i++)
@@ -36,11 +37,14 @@ namespace DbTester.Executors
                         {
                             string propName = prop.Name;
                             JToken val = prop.Value;
-                            columns.Add(new KeyValuePair<string, JToken>(propName, val));
+                            columns.Add(
+                                new KeyValuePair<string, JToken>(propName, val));
                         }
                         Row row = new(columns);
                         insertQuery.AddRow(row);
-                        SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                        SqlCommand insertCommand = new(
+                            insertQuery.ToString(TimeZoneInfo.Local),
+                            _connection, transaction);
 
                         DateTime before = DateTime.Now;
                         insertCommand.ExecuteNonQuery();

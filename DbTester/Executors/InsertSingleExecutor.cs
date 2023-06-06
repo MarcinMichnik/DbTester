@@ -19,7 +19,8 @@ namespace DbTester.Executors
             });
         }
 
-        private void InsertSingle(JObject result, JArray sourceArray, string operationType, string statement) 
+        private void InsertSingle(JObject result, JArray sourceArray,
+            string operationType, string statement) 
         {
             Insert insertQuery = new(_tableName);
 
@@ -41,7 +42,8 @@ namespace DbTester.Executors
                 try
                 {
                     // Create and configure the command
-                    using SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    using SqlCommand insertCommand = new(insertQuery.ToString(TimeZoneInfo.Local),
+                        _connection, transaction);
                     // Measure the time taken to execute the command
                     DateTime before = DateTime.Now;
                     insertCommand.ExecuteNonQuery();

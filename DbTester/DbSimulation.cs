@@ -60,7 +60,7 @@ namespace DbTester
             IEnumerable<JProperty> allProps = all.OfType<JProperty>();
             IEnumerable<JProperty> allTimes = allProps.Where(prop => prop.Name == _executionTimeLiteral);
             var timeSum = allTimes.Sum(prop => (double)prop.Value);
-            result["JobDuration"] = Math.Round(timeSum, 2);
+            result["TotalAverageDuration"] = Math.Round(timeSum, 2);
         }
 
         private JArray ArrayFromSourceFile()
@@ -87,7 +87,7 @@ namespace DbTester
             result["SuccessfulTests"] = 0;
             result["FailedTests"] = 0;
             result["ObjectCount"] = 0;
-            result["JobDuration"] = 0;
+            result["TotalAverageDuration"] = 0;
             result["Create"] = new JObject()
             {
                 { "INSERT_ALL", GetSubObject() },

@@ -17,7 +17,8 @@ namespace DbTester.Executors
             });
         }
 
-        private void SelectAndReadAll(JObject result, string operationType, string statement)
+        private void SelectAndReadAll(JObject result, string operationType,
+            string statement)
         {
             Select selectQuery = new(_tableName, selectAllFields: true);
             SelectAndRead(result, selectQuery, operationType, statement);

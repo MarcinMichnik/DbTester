@@ -18,7 +18,8 @@ namespace DbTester.Executors
             });
         }
 
-        private void DeleteSingle(JObject result, JArray sourceArray, string operationType, string statement)
+        private void DeleteSingle(JObject result, JArray sourceArray,
+            string operationType, string statement)
         {
             Delete deleteQuery = new(_tableName);
             JProperty idProp = (JProperty)sourceArray.First().First();
@@ -30,7 +31,8 @@ namespace DbTester.Executors
                 try
                 {
                     // Create and configure the command
-                    using SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local), _connection, transaction);
+                    using SqlCommand deleteCommand = new(deleteQuery.ToString(TimeZoneInfo.Local),
+                        _connection, transaction);
                     // Measure the time taken to execute the command
                     DateTime before = DateTime.Now;
                     deleteCommand.ExecuteNonQuery();
